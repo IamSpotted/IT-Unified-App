@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="MauiApp1.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:MauiApp1"
+    xmlns:views="clr-namespace:MauiApp1.Views"
+    Title="ITSF App"
+    FlyoutBehavior="Flyout"
+    Shell.NavBarIsVisible="False">
+
+    <!-- Flyout Header -->
+    <Shell.FlyoutHeaderTemplate>
+        <DataTemplate>
+            <Grid BackgroundColor="{AppThemeBinding Light=#F3F3F3, Dark=#2B2B2B}" 
+                  HeightRequest="120" 
+                  Padding="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                
+                <Label Grid.Row="0" 
+                       Text="🖥️ IT Support Framework" 
+                       FontSize="18" 
+                       FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light=#333333, Dark=#FFFFFF}" />
+                
+                <Label Grid.Row="1" 
+                       Text="{Binding CurrentUserDisplayName, StringFormat='User: {0}'}" 
+                       FontSize="14"
+                       TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                
+                <Label Grid.Row="2" 
+                       Text="{Binding CurrentUserRole, StringFormat='Role: {0}'}" 
+                       FontSize="12"
+                       TextColor="{AppThemeBinding Light=#999999, Dark=#AAAAAA}" />
+            </Grid>
+        </DataTemplate>
+    </Shell.FlyoutHeaderTemplate>
+
+    <!-- Flyout Items -->
+    <FlyoutItem Title="🏠 Dashboard" Route="main">
+        <ShellContent ContentTemplate="{DataTemplate local:MainPage}" Shell.NavBarIsVisible="False" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="📹 Cameras" Route="cameras">
+        <ShellContent ContentTemplate="{DataTemplate views:CamerasPage}" Shell.NavBarIsVisible="False" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="🔧 Netops" Route="netops">
+        <ShellContent ContentTemplate="{DataTemplate views:NetopsPage}" Shell.NavBarIsVisible="False" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="🌐 Networking" Route="networking">
+        <ShellContent ContentTemplate="{DataTemplate views:NetworkingPage}" Shell.NavBarIsVisible="False" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="🖨️ Printers" Route="printers">
+        <ShellContent ContentTemplate="{DataTemplate views:PrintersPage}" Shell.NavBarIsVisible="False" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="📜 Scripts" Route="scripts">
+        <ShellContent ContentTemplate="{DataTemplate views:ScriptsPage}" Shell.NavBarIsVisible="False" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="📚 Documentation" Route="documentation">
+        <ShellContent ContentTemplate="{DataTemplate views:DocumentationPage}" Shell.NavBarIsVisible="False" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="⚙️ Settings" Route="settings">
+        <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}" Shell.NavBarIsVisible="False" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="🗄️ Database Admin" 
+                Route="database-admin"
+                IsVisible="{Binding ShowDatabaseAdmin}">
+        <ShellContent ContentTemplate="{DataTemplate views:DatabaseAdminPage}" Shell.NavBarIsVisible="False" />
+    </FlyoutItem>
+
+</Shell>

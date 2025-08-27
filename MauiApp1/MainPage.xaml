@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:MauiApp1.Views"
+             xmlns:controls="clr-namespace:MauiApp1.Controls"
+             x:Class="MauiApp1.MainPage"
+             Title="{Binding Title}"
+             BackgroundColor="{StaticResource PageBackgroundBrush}">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        
+        <!-- Digital Clock - Smaller for Dashboard -->
+        <controls:SevenSegmentClock Grid.Row="0" 
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   Margin="0,10"
+                                   Scale="0.8" />
+        
+        <!-- Ribbon Navigation Container -->
+        <ContentView Grid.Row="1" x:Name="RibbonContainer" />
+        
+        <!-- Main Content -->
+        <ScrollView Grid.Row="2" Padding="10">
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="15">
+            
+                <!-- Network Health Summary Cards -->
+                <Grid Grid.Row="0" ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
+                    
+                    <!-- Online Devices -->
+                    <Frame Grid.Column="0" BackgroundColor="{AppThemeBinding Light=#E8F5E8, Dark=#1B4D1B}" 
+                           BorderColor="{AppThemeBinding Light=#4CAF50, Dark=#66BB6A}" Padding="15" CornerRadius="8">
+                        <StackLayout>
+                            <Label Text="🟢" FontSize="24" HorizontalOptions="Center" />
+                            <Label Text="{Binding OnlineDevices}" FontSize="28" FontAttributes="Bold" 
+                                   HorizontalOptions="Center" TextColor="{AppThemeBinding Light=#2E7D32, Dark=#4CAF50}" />
+                            <Label Text="Online" FontSize="14" HorizontalOptions="Center" 
+                                   TextColor="{AppThemeBinding Light=#2E7D32, Dark=#4CAF50}" />
+                            <Label Text="{Binding OnlinePercentage}" FontSize="12" HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#666, Dark=#AAA}" />
+                        </StackLayout>
+                    </Frame>
+                    
+                    <!-- Offline Devices -->
+                    <Frame Grid.Column="1" BackgroundColor="{AppThemeBinding Light=#FFEBEE, Dark=#4D1B1B}" 
+                           BorderColor="{AppThemeBinding Light=#F44336, Dark=#EF5350}" Padding="15" CornerRadius="8">
+                        <StackLayout>
+                            <Label Text="🔴" FontSize="24" HorizontalOptions="Center" />
+                            <Label Text="{Binding OfflineDevices}" FontSize="28" FontAttributes="Bold" 
+                                   HorizontalOptions="Center" TextColor="{AppThemeBinding Light=#C62828, Dark=#F44336}" />
+                            <Label Text="Offline" FontSize="14" HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#C62828, Dark=#F44336}" />
+                            <Label Text="{Binding OfflinePercentage}" FontSize="12" HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#666, Dark=#AAA}" />
+                        </StackLayout>
+                    </Frame>
+                    
+                    <!-- Warning Devices -->
+                    <Frame Grid.Column="2" BackgroundColor="{AppThemeBinding Light=#FFF8E1, Dark=#4D4D1B}" 
+                           BorderColor="{AppThemeBinding Light=#FF9800, Dark=#FFB74D}" Padding="15" CornerRadius="8">
+                        <StackLayout>
+                            <Label Text="🟡" FontSize="24" HorizontalOptions="Center" />
+                            <Label Text="{Binding WarningDevices}" FontSize="28" FontAttributes="Bold" 
+                                   HorizontalOptions="Center" TextColor="{AppThemeBinding Light=#EF6C00, Dark=#FF9800}" />
+                            <Label Text="Warning" FontSize="14" HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#EF6C00, Dark=#FF9800}" />
+                            <Label Text="{Binding WarningPercentage}" FontSize="12" HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#666, Dark=#AAA}" />
+                        </StackLayout>
+                    </Frame>
+                    
+                    <!-- Total Devices -->
+                    <Frame Grid.Column="3" BackgroundColor="{AppThemeBinding Light=#E3F2FD, Dark=#1B2D4D}" 
+                           BorderColor="{AppThemeBinding Light=#2196F3, Dark=#64B5F6}" Padding="15" CornerRadius="8">
+                        <StackLayout>
+                            <Label Text="📊" FontSize="24" HorizontalOptions="Center" />
+                            <Label Text="{Binding TotalDevices}" FontSize="28" FontAttributes="Bold" 
+                                   HorizontalOptions="Center" TextColor="{AppThemeBinding Light=#1565C0, Dark=#2196F3}" />
+                            <Label Text="Total" FontSize="14" HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#1565C0, Dark=#2196F3}" />
+                            <Label Text="Devices" FontSize="12" HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#666, Dark=#AAA}" />
+                        </StackLayout>
+                    </Frame>
+                    
+                </Grid>
+                
+                <!-- Recent Alerts Section -->
+                <Frame Grid.Row="1" BackgroundColor="{AppThemeBinding Light=White, Dark=#2B2B2B}" 
+                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#444}" Padding="15" CornerRadius="8">
+                    <StackLayout>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0" Text="🚨 Recent Alerts" FontSize="18" FontAttributes="Bold" />
+                            <Label Grid.Column="1" Text="{Binding LastRefreshTime}" FontSize="12" 
+                                   TextColor="{AppThemeBinding Light=#666, Dark=#AAA}" VerticalOptions="Center" />
+                        </Grid>
+                        
+                        <CollectionView ItemsSource="{Binding RecentAlerts}" HeightRequest="200">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" Padding="0,5">
+                                        <Label Grid.Column="0" Text="{Binding StatusIcon}" FontSize="16" VerticalOptions="Center" />
+                                        <StackLayout Grid.Column="1">
+                                            <Label Text="{Binding DeviceName}" FontAttributes="Bold" FontSize="14" />
+                                            <Label Text="{Binding AlertMessage}" FontSize="12" 
+                                                   TextColor="{AppThemeBinding Light=#666, Dark=#AAA}" />
+                                        </StackLayout>
+                                        <Label Grid.Column="2" Text="{Binding TimeAgo}" FontSize="12" 
+                                               TextColor="{AppThemeBinding Light=#666, Dark=#AAA}" VerticalOptions="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                </Frame>
+                
+                <!-- Critical Issues Section -->
+                <Frame Grid.Row="2" BackgroundColor="{AppThemeBinding Light=White, Dark=#2B2B2B}" 
+                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#444}" Padding="15" CornerRadius="8">
+                    <StackLayout>
+                        <Label Text="⚠️ Devices Needing Attention" FontSize="18" FontAttributes="Bold" />
+                        
+                        <CollectionView ItemsSource="{Binding CriticalDevices}" HeightRequest="150">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10" Padding="0,5">
+                                        <Label Grid.Column="0" Text="{Binding StatusIcon}" FontSize="16" VerticalOptions="Center" />
+                                        <StackLayout Grid.Column="1">
+                                            <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="14" />
+                                            <Label Text="{Binding Location}" FontSize="12" 
+                                                   TextColor="{AppThemeBinding Light=#666, Dark=#AAA}" />
+                                        </StackLayout>
+                                        <Label Grid.Column="2" Text="{Binding OfflineTime}" FontSize="12" 
+                                               TextColor="{AppThemeBinding Light=#C62828, Dark=#F44336}" VerticalOptions="Center" />
+                                        <Label Grid.Column="3" Text="{Binding Priority}" FontSize="10" 
+                                               BackgroundColor="{Binding PriorityColor}" TextColor="White" 
+                                               Padding="5,2" VerticalOptions="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                </Frame>
+                
+                <!-- Quick Actions -->
+                <Frame Grid.Row="3" BackgroundColor="{AppThemeBinding Light=White, Dark=#2B2B2B}" 
+                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#444}" Padding="15" CornerRadius="8">
+                    <StackLayout>
+                        <Label Text="🚀 Quick Actions" FontSize="18" FontAttributes="Bold" Margin="0,0,0,10" />
+                        
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                            <Button Grid.Column="0" Text="📊 View All Alerts" 
+                                    Command="{Binding ViewAllAlertsCommand}"
+                                    BackgroundColor="{StaticResource Primary}" 
+                                    TextColor="White" FontSize="12" Padding="10,8" />
+                            <Button Grid.Column="1" Text="🔄 Refresh Status" 
+                                    Command="{Binding RefreshStatusCommand}"
+                                    BackgroundColor="{AppThemeBinding Light=#4CAF50, Dark=#66BB6A}" 
+                                    TextColor="White" FontSize="12" Padding="10,8" />
+                            <Button Grid.Column="2" Text="⚙️ SolarWinds Dashboard" 
+                                    Command="{Binding OpenSolarWindsCommand}"
+                                    BackgroundColor="{AppThemeBinding Light=#FF9800, Dark=#FFB74D}" 
+                                    TextColor="White" FontSize="12" Padding="10,8" />
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+                
+                <!-- System Information -->
+                <Frame Grid.Row="4" BackgroundColor="{AppThemeBinding Light=White, Dark=#2B2B2B}" 
+                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#444}" Padding="15" CornerRadius="8">
+                    <StackLayout>
+                        <Label Text="ℹ️ System Information" FontSize="18" FontAttributes="Bold" Margin="0,0,0,10" />
+                        
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="15" RowSpacing="5">
+                            <Label Grid.Row="0" Grid.Column="0" Text="Last SolarWinds Sync:" FontSize="12" 
+                                   TextColor="{AppThemeBinding Light=#666, Dark=#AAA}" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding LastSolarWindsSync}" FontSize="12" FontAttributes="Bold" />
+                            
+                            <Label Grid.Row="1" Grid.Column="0" Text="Monitoring Status:" FontSize="12" 
+                                   TextColor="{AppThemeBinding Light=#666, Dark=#AAA}" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding MonitoringStatus}" FontSize="12" FontAttributes="Bold" />
+                            
+                            <Label Grid.Row="2" Grid.Column="0" Text="Active Polling Interval:" FontSize="12" 
+                                   TextColor="{AppThemeBinding Light=#666, Dark=#AAA}" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding PollingInterval}" FontSize="12" FontAttributes="Bold" />
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+                
+            </Grid>
+        </ScrollView>
+        
+        <!-- Loading Indicator -->
+        <Frame Grid.Row="2" IsVisible="{Binding IsBusy}"
+               BackgroundColor="{AppThemeBinding Light=#80FFFFFF, Dark=#80000000}"
+               HorizontalOptions="Fill"
+               VerticalOptions="Fill"
+               BorderColor="Transparent">
+            <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   Color="{StaticResource Primary}"
+                                   WidthRequest="50"
+                                   HeightRequest="50" />
+                <Label Text="Refreshing dashboard data..."
+                       FontSize="16"
+                       HorizontalOptions="Center"
+                       Margin="0,10,0,0" />
+            </StackLayout>
+        </Frame>
+    </Grid>
+
+</ContentPage>
