@@ -1,6 +1,6 @@
 # MauiApp1 - IT Support Framework Application
 
-A comprehensive .NET MAUI cross-platform application for IT device management, network monitoring, and database administration with enterprise-level security features.
+A comprehensive .NET MAUI application for IT device management, network monitoring, and database administration with enterprise-level security features.
 
 ![.NET MAUI](https://img.shields.io/badge/.NET%20MAUI-8.0-blue)
 ![C#](https://img.shields.io/badge/C%23-12.0-green)
@@ -892,5 +892,6 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 ---
 
 **Navigation**: [Top](#mauiapp1---it-support-framework-application) | [Table of Contents](#-table-of-contents)
+
 
 
