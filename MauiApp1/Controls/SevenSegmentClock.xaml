@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:MauiApp1.Controls"
+             x:Class="MauiApp1.Controls.SevenSegmentClock"
+             x:Name="ClockControl">
+    
+    <Border BackgroundColor="#000000" 
+            Stroke="#1A1A1A" 
+            StrokeThickness="2" 
+            Padding="15,10">
+        
+        <StackLayout Orientation="Horizontal" Spacing="50" HorizontalOptions="Center">
+            
+            <!-- Date Display -->
+            <StackLayout Orientation="Horizontal" Spacing="4">
+                <!-- MM/DD/YYYY -->
+                <controls:SevenSegmentDigit x:Name="DateMonth1" />
+                <controls:SevenSegmentDigit x:Name="DateMonth2" />
+                <Label Text="/" FontSize="20" TextColor="#FF2020" VerticalOptions="Center" FontFamily="Consolas" />
+                <controls:SevenSegmentDigit x:Name="DateDay1" />
+                <controls:SevenSegmentDigit x:Name="DateDay2" />
+                <Label Text="/" FontSize="20" TextColor="#FF2020" VerticalOptions="Center" FontFamily="Consolas" />
+                <controls:SevenSegmentDigit x:Name="DateYear1" />
+                <controls:SevenSegmentDigit x:Name="DateYear2" />
+                <controls:SevenSegmentDigit x:Name="DateYear3" />
+                <controls:SevenSegmentDigit x:Name="DateYear4" />
+            </StackLayout>
+            
+            <!-- Time Display -->
+            <StackLayout Orientation="Horizontal" Spacing="4">
+                <!-- HH:MM:SS -->
+                <controls:SevenSegmentDigit x:Name="TimeHour1" />
+                <controls:SevenSegmentDigit x:Name="TimeHour2" />
+                <Label Text=":" FontSize="28" TextColor="#FF2020" VerticalOptions="Center" FontFamily="Consolas" />
+                <controls:SevenSegmentDigit x:Name="TimeMinute1" />
+                <controls:SevenSegmentDigit x:Name="TimeMinute2" />
+                <Label Text=":" FontSize="28" TextColor="#FF2020" VerticalOptions="Center" FontFamily="Consolas" />
+                <controls:SevenSegmentDigit x:Name="TimeSecond1" />
+                <controls:SevenSegmentDigit x:Name="TimeSecond2" />
+            </StackLayout>
+            
+        </StackLayout>
+        
+    </Border>
+    
+</ContentView>

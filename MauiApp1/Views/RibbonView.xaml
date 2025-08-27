@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp1.Views.RibbonView">
+    
+    <Border BackgroundColor="{StaticResource Primary}" Padding="10,5">
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="0,0,10,10" />
+        </Border.StrokeShape>
+        
+        <Grid ColumnDefinitions="*,*,*,*,*,*" ColumnSpacing="8">
+            
+            <Button Grid.Column="0"
+                    Text="📹 Cameras" 
+                    Command="{Binding NavigateToCommand}" 
+                    CommandParameter="cameras"
+                    BackgroundColor="{StaticResource PrimaryDark}"
+                    TextColor="White"
+                    FontSize="12"
+                    Padding="8,10"
+                    CornerRadius="5"
+                    HorizontalOptions="FillAndExpand" />
+                    
+            <Button Grid.Column="1"
+                    Text="🔧 Netops" 
+                    Command="{Binding NavigateToCommand}" 
+                    CommandParameter="netops"
+                    BackgroundColor="{StaticResource PrimaryDark}"
+                    TextColor="White"
+                    FontSize="12"
+                    Padding="8,10"
+                    CornerRadius="5"
+                    HorizontalOptions="FillAndExpand" />
+                    
+            <Button Grid.Column="2"
+                    Text="🌐 Network" 
+                    Command="{Binding NavigateToCommand}" 
+                    CommandParameter="networking"
+                    BackgroundColor="{StaticResource PrimaryDark}"
+                    TextColor="White"
+                    FontSize="12"
+                    Padding="8,10"
+                    CornerRadius="5"
+                    HorizontalOptions="FillAndExpand" />
+                    
+            <Button Grid.Column="3"
+                    Text="🖨️ Printers" 
+                    Command="{Binding NavigateToCommand}" 
+                    CommandParameter="printers"
+                    BackgroundColor="{StaticResource PrimaryDark}"
+                    TextColor="White"
+                    FontSize="12"
+                    Padding="8,10"
+                    CornerRadius="5"
+                    HorizontalOptions="FillAndExpand" />
+                    
+            <Button Grid.Column="4"
+                    Text="📜 Scripts" 
+                    Command="{Binding NavigateToCommand}" 
+                    CommandParameter="scripts"
+                    BackgroundColor="{StaticResource PrimaryDark}"
+                    TextColor="White"
+                    FontSize="12"
+                    Padding="8,10"
+                    CornerRadius="5"
+                    HorizontalOptions="FillAndExpand" />
+                    
+            <Button Grid.Column="5"
+                    Text="⚙️ Settings" 
+                    Command="{Binding NavigateToCommand}" 
+                    CommandParameter="settings"
+                    BackgroundColor="{StaticResource PrimaryDark}"
+                    TextColor="White"
+                    FontSize="12"
+                    Padding="8,10"
+                    CornerRadius="5"
+                    HorizontalOptions="FillAndExpand" />
+                    
+        </Grid>
+    </Border>
+    
+</ContentView>

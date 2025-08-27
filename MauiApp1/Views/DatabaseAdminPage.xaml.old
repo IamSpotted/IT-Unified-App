@@ -1,0 +1,799 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:MauiApp1.Controls"
+             x:Class="MauiApp1.Views.DatabaseAdminPage"
+             Title="{Binding Title}"
+             BackgroundColor="{StaticResource PageBackgroundBrush}">
+    
+    <Grid RowDefinitions="Auto,*">
+        
+        <!-- Application Header -->
+        <controls:AppHeader Grid.Row="0" />
+        
+        <!-- Content -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="20" Padding="20">
+                
+                <Label 
+                    Text="🗄️ Database Admin" 
+                    Style="{StaticResource Headline}"
+                    HorizontalOptions="Center" />
+                    
+                <Label 
+                    Text="Add and manage devices for testing"
+                    Style="{StaticResource SubHeadline}"
+                    HorizontalOptions="Center" />
+                
+                <!-- Search Section -->
+                <Frame BackgroundColor="{AppThemeBinding Light=#E8F5E8, Dark=#1E2F1E}" 
+                       Padding="15" 
+                       CornerRadius="10">
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="🔍 Search Devices" 
+                               FontSize="18" 
+                               FontAttributes="Bold" />
+                        
+                        <!-- Search Input -->
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                            <Entry Grid.Column="0" 
+                                   Text="{Binding SearchQuery}"
+                                   Placeholder="Search by name, IP, location, serial number, or asset tag..."
+                                   ReturnCommand="{Binding SearchDevicesCommand}" />
+                            
+                            <Button Grid.Column="1" 
+                                    Text="🔍 Search" 
+                                    Command="{Binding SearchDevicesCommand}"
+                                    BackgroundColor="{StaticResource Primary}"
+                                    TextColor="White"
+                                    IsEnabled="{Binding IsSearching, Converter={StaticResource InvertedBoolConverter}}" />
+                            
+                            <Button Grid.Column="2" 
+                                    Text="❌ Clear" 
+                                    Command="{Binding ClearSearchCommand}"
+                                    BackgroundColor="{StaticResource Secondary}"
+                                    TextColor="White" />
+                        </Grid>
+                        
+                        <!-- Search Progress -->
+                        <ActivityIndicator IsVisible="{Binding IsSearching}" 
+                                         IsRunning="{Binding IsSearching}"
+                                         Color="{StaticResource Primary}" />
+                        
+                        <!-- Search Results -->
+                        <CollectionView ItemsSource="{Binding SearchResults}" 
+                                      IsVisible="{Binding HasSearchResults}"
+                                      HeightRequest="200">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto,Auto" Padding="10" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}">
+                                        <StackLayout Grid.Column="0">
+                                            <Label Text="{Binding Hostname}" FontAttributes="Bold" />
+                                            <Label Text="{Binding IpAddress}" FontSize="12" TextColor="Gray" />
+                                            <Label Text="{Binding Location}" FontSize="12" TextColor="Gray" />
+                                        </StackLayout>
+                                        <Button Grid.Column="1" 
+                                                Text="👁️ View" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ViewDeviceCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="Blue"
+                                                TextColor="White"
+                                                WidthRequest="60"
+                                                Margin="0,0,5,0" />
+                                        <Button Grid.Column="2" 
+                                                Text="✏️ Edit" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditSearchedDeviceCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="Orange"
+                                                TextColor="White"
+                                                WidthRequest="60" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Frame>
+                
+                <!-- Add Device Section (Only visible when NOT in edit mode) -->
+                <Frame BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2B2B2B}" 
+                       Padding="15" 
+                       CornerRadius="10"
+                       IsVisible="{Binding IsEditMode, Converter={StaticResource InvertedBoolConverter}}">
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="➕ Add New Device" 
+                               FontSize="18" 
+                               FontAttributes="Bold" />
+                        
+                        <!-- Device Type Selection -->
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" 
+                                   Text="Device Type:" 
+                                   VerticalOptions="Center" />
+                            <Picker Grid.Column="1" 
+                                    ItemsSource="{Binding DeviceTypes}"
+                                    SelectedItem="{Binding SelectedDeviceType}" />
+                        </Grid>
+                        
+                        <!-- Common Fields -->
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" 
+                                   Text="Name:" 
+                                   VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding DeviceName}"
+                                   Placeholder="Enter device name" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" 
+                                   Text="IP Address:" 
+                                   VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding IpAddress}"
+                                   Placeholder="e.g., 192.168.1.100"
+                                   Keyboard="Numeric" />
+                        </Grid>
+                        
+                        <!-- Location Fields -->
+                        <Label Text="📍 Location Information" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               Margin="0,10,0,0" />
+
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                            <StackLayout Grid.Row="0" Grid.Column="0">
+                                <Label Text="Area:" />
+                                <Entry Text="{Binding Area}" Placeholder="Area" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="0" Grid.Column="1">
+                                <Label Text="Zone:" />
+                                <Entry Text="{Binding Zone}" Placeholder="Zone" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="1" Grid.Column="0">
+                                <Label Text="Line:" />
+                                <Entry Text="{Binding Line}" Placeholder="Line" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="1" Grid.Column="1">
+                                <Label Text="Pitch:" />
+                                <Entry Text="{Binding Pitch}" Placeholder="Pitch" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="2" Grid.Column="0">
+                                <Label Text="Level:" />
+                                <Entry Text="{Binding Level}" Placeholder="Level" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="2" Grid.Column="1">
+                                <Label Text="Column:" />
+                                <Entry Text="{Binding Column}" Placeholder="Column" />
+                            </StackLayout>                            
+                        </Grid>
+
+                        <!-- Comprehensive Device Information -->
+                        <Label Text="🔧 Device Details" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               Margin="0,10,0,0" />
+                        
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <StackLayout Grid.Column="0">
+                                <Label Text="Host Name:" />
+                                <Entry Text="{Binding HostName}" Placeholder="Host name" />
+                            </StackLayout>
+                            <StackLayout Grid.Column="1">
+                                <Label Text="Priority:" />
+                                <Entry Text="{Binding Priority}" Placeholder="Priority (1-10)" Keyboard="Numeric" />
+                            </StackLayout>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <StackLayout Grid.Column="0">
+                                <Label Text="Manufacturer:" />
+                                <Entry Text="{Binding Manufacturer}" Placeholder="Manufacturer" />
+                            </StackLayout>
+                            <StackLayout Grid.Column="1">
+                                <Label Text="Model:" />
+                                <Entry Text="{Binding Model}" Placeholder="Model" />
+                            </StackLayout>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <StackLayout Grid.Column="0">
+                                <Label Text="Serial Number:" />
+                                <Entry Text="{Binding SerialNumber}" Placeholder="Serial number" />
+                            </StackLayout>
+                            <StackLayout Grid.Column="1">
+                                <Label Text="Asset Tag:" />
+                                <Entry Text="{Binding AssetTag}" Placeholder="Asset tag" />
+                            </StackLayout>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <StackLayout Grid.Column="0">
+                                <Label Text="MAC Address:" />
+                                <Entry Text="{Binding MacAddress}" Placeholder="MAC address" />
+                            </StackLayout>
+                            <StackLayout Grid.Column="1">
+                                <Label Text="Equipment Group:" />
+                                <Entry Text="{Binding EquipmentGroup}" Placeholder="Equipment group" />
+                            </StackLayout>
+                        </Grid>
+
+                        <!-- Date Fields -->
+                        <Label Text="📅 Date Information" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               Margin="0,10,0,0" />
+
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                            <StackLayout Grid.Column="0">
+                                <Label Text="Purchase Date:" />
+                                <DatePicker Date="{Binding PurchaseDate}" Format="yyyy-MM-dd" />
+                            </StackLayout>
+                            <StackLayout Grid.Column="1">
+                                <Label Text="Service Date:" />
+                                <DatePicker Date="{Binding ServiceDate}" Format="yyyy-MM-dd" />
+                            </StackLayout>
+                            <StackLayout Grid.Column="2">
+                                <Label Text="Warranty Date:" />
+                                <DatePicker Date="{Binding WarrantyDate}" Format="yyyy-MM-dd" />
+                            </StackLayout>
+                        </Grid>
+
+                        <!-- Web Information -->
+                        <Label Text="🌐 Web Information" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               Margin="0,10,0,0" />
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <StackLayout Grid.Column="0">
+                                <Label Text="Web Link:" />
+                                <Entry Text="{Binding WebLink}" Placeholder="Web link URL" />
+                            </StackLayout>
+                            <StackLayout Grid.Column="1">
+                                <Label Text="Web Link Name:" />
+                                <Entry Text="{Binding WebLinkName}" Placeholder="Link display name" />
+                            </StackLayout>
+                        </Grid>
+
+                        <!-- Additional Notes -->
+                        <Label Text="📝 Additional Information" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               Margin="0,10,0,0" />
+
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Notes:" VerticalOptions="Start" Margin="0,5,0,0" />
+                            <Editor Grid.Column="1" 
+                                    Text="{Binding AdditionalNotes}" 
+                                    Placeholder="Additional notes..."
+                                    HeightRequest="80" />
+                        </Grid>
+                        
+                        <!-- Printer-specific fields -->
+                        <StackLayout IsVisible="{Binding SelectedDeviceType, Converter={StaticResource StringToBoolConverter}, ConverterParameter='Printer'}"
+                                     Spacing="10">
+                            <Label Text="🖨️ Printer Details" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" />
+                            
+                            <Grid ColumnDefinitions="120,*">
+                                <Label Grid.Column="0" Text="Model:" VerticalOptions="Center" />
+                                <Entry Grid.Column="1" Text="{Binding PrinterModel}" Placeholder="Printer model" />
+                            </Grid>
+                            
+                            <Grid ColumnDefinitions="120,*">
+                                <Label Grid.Column="0" Text="Serial Number:" VerticalOptions="Center" />
+                                <Entry Grid.Column="1" Text="{Binding SerialNumber}" Placeholder="Serial number" />
+                            </Grid>
+                        </StackLayout>
+                        
+                        <!-- Camera-specific fields -->
+                        <StackLayout IsVisible="{Binding SelectedDeviceType, Converter={StaticResource StringToBoolConverter}, ConverterParameter='Camera'}"
+                                     Spacing="10">
+                            <Label Text="📹 Camera Details" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" />
+                            
+                            <Grid ColumnDefinitions="120,*">
+                                <Label Grid.Column="0" Text="Camera Type:" VerticalOptions="Center" />
+                                <Picker Grid.Column="1" 
+                                        ItemsSource="{Binding CameraTypes}"
+                                        SelectedItem="{Binding CameraType}" />
+                            </Grid>
+                            
+                            <Grid ColumnDefinitions="120,*">
+                                <Label Grid.Column="0" Text="Stream URL:" VerticalOptions="Center" />
+                                <Entry Grid.Column="1" Text="{Binding StreamUrl}" Placeholder="http://ip/stream (optional)" />
+                            </Grid>
+                        </StackLayout>
+                        
+                        <!-- NetOp Device-specific fields -->
+                        <StackLayout IsVisible="{Binding SelectedDeviceType, Converter={StaticResource StringToBoolConverter}, ConverterParameter='NetOp Device'}"
+                                     Spacing="10">
+                            <Label Text="🖥️ NetOp Device Details" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" />
+                            
+                            <Grid ColumnDefinitions="120,*">
+                                <Label Grid.Column="0" Text="Device Type:" VerticalOptions="Center" />
+                                <Picker Grid.Column="1" 
+                                        ItemsSource="{Binding NetOpDeviceTypes}"
+                                        SelectedItem="{Binding NetopDeviceType}" />
+                            </Grid>
+                        </StackLayout>
+                        
+                        <!-- Common Web Interface URL -->
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" 
+                                   Text="Web URL:" 
+                                   VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding WebInterfaceUrl}"
+                                   Placeholder="http://ip (optional - will auto-generate)" />
+                        </Grid>
+                        
+                        <!-- Action Buttons -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,10,0,0">
+                            <Button Grid.Column="0" 
+                                    Text="➕ Add Device" 
+                                    Command="{Binding AddDeviceCommand}"
+                                    BackgroundColor="{StaticResource Primary}"
+                                    TextColor="White" />
+                            
+                            <Button Grid.Column="1" 
+                                    Text="🗑️ Clear Form" 
+                                    Command="{Binding ResetFormCommand}"
+                                    BackgroundColor="{StaticResource Secondary}"
+                                    TextColor="White" />
+                        </Grid>
+                        
+                        <!-- Debug Test Button -->
+                        <Button Text="🔍 Test Database Connection" 
+                                Command="{Binding TestDatabaseConnectionCommand}"
+                                BackgroundColor="Orange"
+                                TextColor="White"
+                                Margin="0,10,0,0" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Edit Device Section (Only visible when IsEditMode is true) -->
+                <Frame BackgroundColor="{AppThemeBinding Light=#FFF8DC, Dark=#2F2F1F}" 
+                       Padding="15" 
+                       CornerRadius="10"
+                       IsVisible="{Binding IsEditMode}">
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="✏️ Edit Device" 
+                               FontSize="18" 
+                               FontAttributes="Bold" 
+                               TextColor="Orange" />
+                        
+                        <!-- Device Type Selection -->
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" 
+                                   Text="Device Type:" 
+                                   VerticalOptions="Center" />
+                            <Picker Grid.Column="1" 
+                                    ItemsSource="{Binding DeviceTypes}"
+                                    SelectedItem="{Binding EditSelectedDeviceType}" />
+                        </Grid>
+                        
+                        <!-- Device Name -->
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" 
+                                   Text="Device Name:" 
+                                   VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditDeviceName}"
+                                   Placeholder="Enter device name" />
+                        </Grid>
+                        
+                        <!-- IP Address -->
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" 
+                                   Text="IP Address:" 
+                                   VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditIpAddress}"
+                                   Placeholder="192.168.x.x" />
+                        </Grid>
+                        
+                        <!-- Location Section -->
+                        <Label Text="📍 Location Information" 
+                               FontSize="16" 
+                               FontAttributes="Bold" />
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Area:" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditArea}"
+                                   Placeholder="Enter area" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Zone:" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditZone}"
+                                   Placeholder="Enter zone" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Line:" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditLine}"
+                                   Placeholder="Enter line" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Column:" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditColumn}"
+                                   Placeholder="Enter column" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Level:" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditLevel}"
+                                   Placeholder="Enter level" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Pitch:" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditPitch}"
+                                   Placeholder="Enter pitch" />
+                        </Grid>
+                        
+                        <!-- Device Details Section -->
+                        <Label Text="🔧 Device Details" 
+                               FontSize="16" 
+                               FontAttributes="Bold" />
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Host Name:" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditHostName}"
+                                   Placeholder="Enter host name" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Priority:" VerticalOptions="Center" />
+                            <Picker Grid.Column="1" 
+                                    ItemsSource="{Binding PriorityLevels}"
+                                    SelectedItem="{Binding EditPriority}" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Manufacturer:" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditManufacturer}"
+                                   Placeholder="Enter manufacturer" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Model:" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditModel}"
+                                   Placeholder="Enter model" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Serial Number:" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditSerialNumber}"
+                                   Placeholder="Enter serial number" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Asset Tag:" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditAssetTag}"
+                                   Placeholder="Enter asset tag" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="MAC Address:" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditMacAddress}"
+                                   Placeholder="XX:XX:XX:XX:XX:XX" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Equipment Group:" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditEquipmentGroup}"
+                                   Placeholder="Enter equipment group" />
+                        </Grid>
+                        
+                        <!-- Date Information Section -->
+                        <Label Text="📅 Date Information" 
+                               FontSize="16" 
+                               FontAttributes="Bold" />
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Purchase Date:" VerticalOptions="Center" />
+                            <DatePicker Grid.Column="1" Date="{Binding EditPurchaseDate}" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Service Date:" VerticalOptions="Center" />
+                            <DatePicker Grid.Column="1" Date="{Binding EditServiceDate}" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Warranty Date:" VerticalOptions="Center" />
+                            <DatePicker Grid.Column="1" Date="{Binding EditWarrantyDate}" />
+                        </Grid>
+                        
+                        <!-- Web Information Section -->
+                        <Label Text="🌐 Web Information" 
+                               FontSize="16" 
+                               FontAttributes="Bold" />
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Web Link:" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditWebLink}"
+                                   Placeholder="http://example.com" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Web Link Name:" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditWebLinkName}"
+                                   Placeholder="Enter link name" />
+                        </Grid>
+                        
+                        <!-- Additional Information Section -->
+                        <Label Text="📝 Additional Information" 
+                               FontSize="16" 
+                               FontAttributes="Bold" />
+                        
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" Text="Notes:" VerticalOptions="Start" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditNotes}"
+                                   Placeholder="Enter additional notes" />
+                        </Grid>
+                        
+                        <!-- Printer-specific fields -->
+                        <StackLayout IsVisible="{Binding EditSelectedDeviceType, Converter={StaticResource StringToBoolConverter}, ConverterParameter='Printer'}"
+                                     Spacing="10">
+                            <Label Text="🖨️ Printer Details" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" />
+                            
+                            <Grid ColumnDefinitions="120,*">
+                                <Label Grid.Column="0" Text="Printer Type:" VerticalOptions="Center" />
+                                <Picker Grid.Column="1" 
+                                        ItemsSource="{Binding PrinterTypes}"
+                                        SelectedItem="{Binding EditPrinterType}" />
+                            </Grid>
+                            
+                            <Grid ColumnDefinitions="120,*">
+                                <Label Grid.Column="0" Text="Driver Name:" VerticalOptions="Center" />
+                                <Entry Grid.Column="1" 
+                                       Text="{Binding EditDriverName}"
+                                       Placeholder="Enter driver name" />
+                            </Grid>
+                        </StackLayout>
+                        
+                        <!-- Camera-specific fields -->
+                        <StackLayout IsVisible="{Binding EditSelectedDeviceType, Converter={StaticResource StringToBoolConverter}, ConverterParameter='Camera'}"
+                                     Spacing="10">
+                            <Label Text="📹 Camera Details" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" />
+                            
+                            <Grid ColumnDefinitions="120,*">
+                                <Label Grid.Column="0" Text="Camera Type:" VerticalOptions="Center" />
+                                <Picker Grid.Column="1" 
+                                        ItemsSource="{Binding CameraTypes}"
+                                        SelectedItem="{Binding EditCameraType}" />
+                            </Grid>
+                            
+                            <Grid ColumnDefinitions="120,*">
+                                <Label Grid.Column="0" Text="Stream URL:" VerticalOptions="Center" />
+                                <Entry Grid.Column="1" 
+                                       Text="{Binding EditStreamUrl}"
+                                       Placeholder="http://ip/stream (optional)" />
+                            </Grid>
+                        </StackLayout>
+                        
+                        <!-- NetOp Device-specific fields -->
+                        <StackLayout IsVisible="{Binding EditSelectedDeviceType, Converter={StaticResource StringToBoolConverter}, ConverterParameter='NetOp Device'}"
+                                     Spacing="10">
+                            <Label Text="🖥️ NetOp Device Details" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" />
+                            
+                            <Grid ColumnDefinitions="120,*">
+                                <Label Grid.Column="0" Text="Device Type:" VerticalOptions="Center" />
+                                <Picker Grid.Column="1" 
+                                        ItemsSource="{Binding NetOpDeviceTypes}"
+                                        SelectedItem="{Binding EditNetopDeviceType}" />
+                            </Grid>
+                        </StackLayout>
+                        
+                        <!-- Common Web Interface URL -->
+                        <Grid ColumnDefinitions="120,*">
+                            <Label Grid.Column="0" 
+                                   Text="Web URL:" 
+                                   VerticalOptions="Center" />
+                            <Entry Grid.Column="1" 
+                                   Text="{Binding EditWebInterfaceUrl}"
+                                   Placeholder="http://ip (optional - will auto-generate)" />
+                        </Grid>
+                        
+                        <!-- Edit Action Buttons -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,20,0,0">
+                            <Button Grid.Column="0" 
+                                    Text="💾 Save Changes" 
+                                    Command="{Binding UpdateDeviceCommand}"
+                                    BackgroundColor="Green"
+                                    TextColor="White" />
+                            
+                            <Button Grid.Column="1" 
+                                    Text="❌ Cancel" 
+                                    Command="{Binding ToggleEditModeCommand}"
+                                    BackgroundColor="Gray"
+                                    TextColor="White" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+                
+                <!-- Device Lists Section -->
+                <Frame BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2B2B2B}" 
+                       Padding="15" 
+                       CornerRadius="10">
+                    <VerticalStackLayout Spacing="15">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0"
+                                   Text="📋 Current Devices" 
+                                   FontSize="18" 
+                                   FontAttributes="Bold"
+                                   VerticalOptions="Center" />
+                            <Button Grid.Column="1"
+                                    Text="🔄 Refresh"
+                                    Command="{Binding LoadAllDevicesCommand}"
+                                    BackgroundColor="{StaticResource Primary}"
+                                    TextColor="White" />
+                        </Grid>
+                        
+                        <!-- Printers -->
+                        <Label Text="🖨️ Printers" FontSize="16" FontAttributes="Bold" />
+                        <CollectionView ItemsSource="{Binding Printers}" HeightRequest="150">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto,Auto" Padding="5" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}">
+                                        <StackLayout Grid.Column="0">
+                                            <Label Text="{Binding Name}" FontAttributes="Bold" />
+                                            <Label Text="{Binding IpAddress}" FontSize="12" TextColor="Gray" />
+                                            <Label Text="{Binding FullLocation}" FontSize="12" TextColor="Gray" />
+                                        </StackLayout>
+                                        <Button Grid.Column="1" 
+                                                Text="✏️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ToggleEditModeCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="Orange"
+                                                TextColor="White"
+                                                WidthRequest="40"
+                                                Margin="0,0,5,0" />
+                                        <Button Grid.Column="2" 
+                                                Text="🗑️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeletePrinterCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="Red"
+                                                TextColor="White"
+                                                WidthRequest="40" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                        
+                        <!-- Cameras -->
+                        <Label Text="📹 Cameras" FontSize="16" FontAttributes="Bold" />
+                        <CollectionView ItemsSource="{Binding Cameras}" HeightRequest="150">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto,Auto" Padding="5" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}">
+                                        <StackLayout Grid.Column="0">
+                                            <Label Text="{Binding Name}" FontAttributes="Bold" />
+                                            <Label Text="{Binding IpAddress}" FontSize="12" TextColor="Gray" />
+                                            <Label Text="{Binding FullLocation}" FontSize="12" TextColor="Gray" />
+                                        </StackLayout>
+                                        <Button Grid.Column="1" 
+                                                Text="✏️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ToggleEditModeCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="Orange"
+                                                TextColor="White"
+                                                WidthRequest="40"
+                                                Margin="0,0,5,0" />
+                                        <Button Grid.Column="2" 
+                                                Text="🗑️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteCameraCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="Red"
+                                                TextColor="White"
+                                                WidthRequest="40" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                        
+                        <!-- NetOp Devices -->
+                        <Label Text="🖥️ NetOp Devices" FontSize="16" FontAttributes="Bold" />
+                        <CollectionView ItemsSource="{Binding NetopDevices}" HeightRequest="150">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto,Auto" Padding="5" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}">
+                                        <StackLayout Grid.Column="0">
+                                            <Label Text="{Binding Name}" FontAttributes="Bold" />
+                                            <Label Text="{Binding IpAddress}" FontSize="12" TextColor="Gray" />
+                                            <Label Text="{Binding FullLocation}" FontSize="12" TextColor="Gray" />
+                                        </StackLayout>
+                                        <Button Grid.Column="1" 
+                                                Text="✏️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ToggleEditModeCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="Orange"
+                                                TextColor="White"
+                                                WidthRequest="40"
+                                                Margin="0,0,5,0" />
+                                        <Button Grid.Column="2" 
+                                                Text="🗑️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteNetopDeviceCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="Red"
+                                                TextColor="White"
+                                                WidthRequest="40" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                        
+                        <!-- Other Devices -->
+                        <Label Text="🔧 Other Devices" FontSize="16" FontAttributes="Bold" />
+                        <CollectionView ItemsSource="{Binding OtherDevices}" HeightRequest="150">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto,Auto" Padding="5" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}">
+                                        <StackLayout Grid.Column="0">
+                                            <Label Text="{Binding Name}" FontAttributes="Bold" />
+                                            <Label Text="{Binding IpAddress}" FontSize="12" TextColor="Gray" />
+                                            <Label Text="{Binding FullLocation}" FontSize="12" TextColor="Gray" />
+                                        </StackLayout>
+                                        <Button Grid.Column="1" 
+                                                Text="✏️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ToggleEditModeCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="Orange"
+                                                TextColor="White"
+                                                WidthRequest="40"
+                                                Margin="0,0,5,0" />
+                                        <Button Grid.Column="2" 
+                                                Text="🗑️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteOtherDeviceCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="Red"
+                                                TextColor="White"
+                                                WidthRequest="40" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Frame>
+                
+                <ActivityIndicator 
+                    IsVisible="{Binding IsBusy}" 
+                    IsRunning="{Binding IsBusy}"
+                    Color="{StaticResource Primary}" />
+                    
+            </VerticalStackLayout>
+        </ScrollView>
+        
+    </Grid>
+    
+</ContentPage>

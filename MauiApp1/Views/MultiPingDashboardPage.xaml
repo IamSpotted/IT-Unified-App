@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="MauiApp1.Views.MultiPingDashboardPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:MauiApp1.ViewModels"
+             xmlns:models="clr-namespace:MauiApp1.Models"
+             xmlns:converters="clr-namespace:MauiApp1.Converters"
+             x:DataType="viewmodels:MultiPingViewModel"
+             Title="Multi-Ping Dashboard">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*" Padding="10">
+        
+        <!-- Header Section -->
+        <Frame Grid.Row="0" 
+               BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+               BorderColor="{AppThemeBinding Light=#DDDDDD, Dark=#444444}"
+               Padding="15"
+               CornerRadius="8"
+               HasShadow="True"
+               Margin="0,0,0,10">
+            
+            <StackLayout Spacing="15">
+                
+                <!-- Add New Ping Session -->
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                    <Entry Grid.Column="0"
+                           x:Name="TargetEntry"
+                           Text="{Binding NewTarget}"
+                           Placeholder="Enter IP address or hostname"
+                           ReturnType="Done"
+                           ReturnCommand="{Binding AddPingSessionCommand}"
+                           BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2D2D2D}"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                    
+                    <Picker Grid.Column="1"
+                            SelectedItem="{Binding DefaultPingCount}"
+                            Title="Count"
+                            WidthRequest="100"
+                            BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2D2D2D}"
+                            TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}">
+                        <Picker.Items>
+                            <x:String>5</x:String>
+                            <x:String>10</x:String>
+                            <x:String>25</x:String>
+                            <x:String>Continuous</x:String>
+                        </Picker.Items>
+                    </Picker>
+                    
+                    <Button Grid.Column="2"
+                            Text="➕ Add"
+                            Command="{Binding AddPingSessionCommand}"
+                            BackgroundColor="{AppThemeBinding Light=#2196F3, Dark=#1976D2}"
+                            TextColor="White"
+                            CornerRadius="5"
+                            WidthRequest="80" />
+                </Grid>
+                
+                <!-- Global Controls -->
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10" IsVisible="{Binding HasActiveSessions}">
+                    <Button Grid.Column="0"
+                            Text="▶️ Start All"
+                            Command="{Binding StartAllSessionsCommand}"
+                            BackgroundColor="{AppThemeBinding Light=#4CAF50, Dark=#388E3C}"
+                            TextColor="White"
+                            CornerRadius="5" />
+                    
+                    <Button Grid.Column="1"
+                            Text="⏹️ Stop All"
+                            Command="{Binding StopAllSessionsCommand}"
+                            BackgroundColor="{AppThemeBinding Light=#FF9800, Dark=#F57C00}"
+                            TextColor="White"
+                            CornerRadius="5" />
+                    
+                    <Button Grid.Column="2"
+                            Text="🗑️ Clear Done"
+                            Command="{Binding ClearCompletedSessionsCommand}"
+                            BackgroundColor="{AppThemeBinding Light=#F44336, Dark=#D32F2F}"
+                            TextColor="White"
+                            CornerRadius="5" />
+                </Grid>
+                
+                <!-- Session Summary -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="20" IsVisible="{Binding HasActiveSessions}">
+                    <StackLayout Grid.Column="0" Orientation="Horizontal" Spacing="5">
+                        <Label Text="🏃" FontSize="16" VerticalOptions="Center" />
+                        <Label Text="Running:" FontAttributes="Bold" VerticalOptions="Center" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                        <Label Text="{Binding RunningSessions}" FontFamily="Consolas" VerticalOptions="Center" TextColor="{AppThemeBinding Light=#4CAF50, Dark=#81C784}" />
+                    </StackLayout>
+                    
+                    <StackLayout Grid.Column="1" Orientation="Horizontal" Spacing="5">
+                        <Label Text="✅" FontSize="16" VerticalOptions="Center" />
+                        <Label Text="Completed:" FontAttributes="Bold" VerticalOptions="Center" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                        <Label Text="{Binding CompletedSessions}" FontFamily="Consolas" VerticalOptions="Center" TextColor="{AppThemeBinding Light=#1976D2, Dark=#42A5F5}" />
+                    </StackLayout>
+                </Grid>
+                
+            </StackLayout>
+        </Frame>
+        
+        <!-- Ping Sessions List -->
+        <ScrollView Grid.Row="1">
+            <StackLayout Spacing="10">
+                
+                <!-- Empty State -->
+                <Frame IsVisible="{Binding HasActiveSessions, Converter={StaticResource InvertedBoolConverter}}"
+                       BackgroundColor="{AppThemeBinding Light=#F9F9F9, Dark=#2D2D2D}"
+                       BorderColor="{AppThemeBinding Light=#EEEEEE, Dark=#555555}"
+                       Padding="30"
+                       CornerRadius="8"
+                       HasShadow="False">
+                    <StackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="📡" FontSize="48" HorizontalOptions="Center" />
+                        <Label Text="No ping sessions yet" 
+                               FontSize="18" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                        <Label Text="Add a target above to start pinging multiple devices simultaneously" 
+                               FontSize="14"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light=#999999, Dark=#AAAAAA}" />
+                    </StackLayout>
+                </Frame>
+                
+                <!-- Ping Sessions -->
+                <CollectionView ItemsSource="{Binding PingSessions}" 
+                                IsVisible="{Binding HasActiveSessions}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:PingSession">
+                            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                                   BorderColor="{AppThemeBinding Light=#DDDDDD, Dark=#444444}"
+                                   Padding="15"
+                                   CornerRadius="8"
+                                   HasShadow="True"
+                                   Margin="0,5">
+                                
+                                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="10">
+                                    
+                                    <!-- Header Row -->
+                                    <StackLayout Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Spacing="10">
+                                        <Label Text="🎯" FontSize="16" VerticalOptions="Center" />
+                                        <Label Text="{Binding Target}" 
+                                               FontSize="16" 
+                                               FontAttributes="Bold"
+                                               VerticalOptions="Center"
+                                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                                        <Frame BackgroundColor="{AppThemeBinding Light=#E3F2FD, Dark=#1565C0}"
+                                               Padding="5,2"
+                                               CornerRadius="10"
+                                               HasShadow="False">
+                                            <Label Text="{Binding Status}" 
+                                                   FontSize="12"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{AppThemeBinding Light=#1976D2, Dark=#FFFFFF}" />
+                                        </Frame>
+                                        <Frame BackgroundColor="{AppThemeBinding Light=#FFF3E0, Dark=#FF8F00}"
+                                               Padding="5,2"
+                                               CornerRadius="10"
+                                               HasShadow="False">
+                                            <Label Text="{Binding PingCountDisplay}" 
+                                                   FontSize="12"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{AppThemeBinding Light=#FF8F00, Dark=#FFFFFF}" />
+                                        </Frame>
+                                    </StackLayout>
+                                    
+                                    <!-- Action Buttons -->
+                                    <StackLayout Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="5">
+                                        <Button Text="▶️"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MultiPingViewModel}}, Path=StartSessionCommand}"
+                                                CommandParameter="{Binding .}"
+                                                IsEnabled="{Binding IsRunning, Converter={StaticResource InvertedBoolConverter}}"
+                                                BackgroundColor="{AppThemeBinding Light=#4CAF50, Dark=#388E3C}"
+                                                TextColor="White"
+                                                CornerRadius="15"
+                                                WidthRequest="40"
+                                                HeightRequest="40" />
+                                        
+                                        <Button Text="⏹️"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MultiPingViewModel}}, Path=StopSessionCommand}"
+                                                CommandParameter="{Binding .}"
+                                                IsEnabled="{Binding IsRunning}"
+                                                BackgroundColor="{AppThemeBinding Light=#FF9800, Dark=#F57C00}"
+                                                TextColor="White"
+                                                CornerRadius="15"
+                                                WidthRequest="40"
+                                                HeightRequest="40" />
+                                        
+                                        <Button Text="👁️"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MultiPingViewModel}}, Path=ViewSessionDetailsCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="{AppThemeBinding Light=#2196F3, Dark=#1976D2}"
+                                                TextColor="White"
+                                                CornerRadius="15"
+                                                WidthRequest="40"
+                                                HeightRequest="40" />
+                                        
+                                        <Button Text="🗑️"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MultiPingViewModel}}, Path=RemoveSessionCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="{AppThemeBinding Light=#F44336, Dark=#D32F2F}"
+                                                TextColor="White"
+                                                CornerRadius="15"
+                                                WidthRequest="40"
+                                                HeightRequest="40" />
+                                    </StackLayout>
+                                    
+                                    <!-- Statistics Row -->
+                                    <Grid Grid.Row="1" Grid.ColumnSpan="2" 
+                                          ColumnDefinitions="*,*,*,*" 
+                                          ColumnSpacing="15">
+                                        
+                                        <StackLayout Grid.Column="0" Spacing="2">
+                                            <Label Text="Sent" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                            <Label Text="{Binding PacketsSent}" FontFamily="Consolas" FontSize="16" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                                        </StackLayout>
+                                        
+                                        <StackLayout Grid.Column="1" Spacing="2">
+                                            <Label Text="Received" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                            <Label Text="{Binding PacketsReceived}" FontFamily="Consolas" FontSize="16" TextColor="{AppThemeBinding Light=#4CAF50, Dark=#81C784}" />
+                                        </StackLayout>
+                                        
+                                        <StackLayout Grid.Column="2" Spacing="2">
+                                            <Label Text="Loss %" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                            <Label Text="{Binding LossPercentage, StringFormat='{0:F1}%'}" FontFamily="Consolas" FontSize="16" TextColor="{AppThemeBinding Light=#FF9800, Dark=#FFB74D}" />
+                                        </StackLayout>
+                                        
+                                        <StackLayout Grid.Column="3" Spacing="2" IsVisible="{Binding HasResponseTimes}">
+                                            <Label Text="Avg Time" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                            <Label Text="{Binding AvgResponseTime, StringFormat='{0:F1} ms'}" FontFamily="Consolas" FontSize="16" TextColor="{AppThemeBinding Light=#1976D2, Dark=#42A5F5}" />
+                                        </StackLayout>
+                                        
+                                    </Grid>
+                                    
+                                    <!-- Status Message Row -->
+                                    <StackLayout Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="10">
+                                        <ActivityIndicator IsRunning="{Binding IsRunning}"
+                                                           Color="{AppThemeBinding Light=#1976D2, Dark=#42A5F5}"
+                                                           WidthRequest="20"
+                                                           HeightRequest="20"
+                                                           IsVisible="{Binding IsRunning}" />
+                                        <Label Text="{Binding StatusMessage}"
+                                               FontSize="12"
+                                               VerticalOptions="Center"
+                                               TextColor="{AppThemeBinding Light=#1976D2, Dark=#42A5F5}" />
+                                    </StackLayout>
+                                    
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                
+            </StackLayout>
+        </ScrollView>
+        
+    </Grid>
+
+</ContentPage>

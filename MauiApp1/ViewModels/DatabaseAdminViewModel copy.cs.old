@@ -1,0 +1,1222 @@
+using MauiApp1.Models;
+using MauiApp1.Interfaces;
+using MauiApp1.Services;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System.Collections.ObjectModel;
+using DeviceModel = MauiApp1.Models.Device;
+
+namespace MauiApp1.ViewModels;
+
+public partial class DatabaseAdminViewModel : BaseViewModel, ILoadableViewModel
+{
+    private readonly IPrinterService _printerService;
+    private readonly ICameraService _cameraService;
+    private readonly INetopService _netopService;
+    private readonly IDatabaseService _databaseService;
+    private readonly IAddDeviceService _addDeviceService;
+    private readonly IUpdateDeviceService _updateDeviceService;
+    private new readonly IDialogService _dialogService;
+
+    // Device Type Selection
+    [ObservableProperty]
+    private string _selectedDeviceType = "Printer";
+
+    // Common Properties for all devices
+    [ObservableProperty]
+    private string _deviceName = string.Empty;
+
+    [ObservableProperty]
+    private string _ipAddress = string.Empty;
+
+    [ObservableProperty]
+    private string _area = string.Empty;
+
+    [ObservableProperty]
+    private string _zone = string.Empty;
+
+    [ObservableProperty]
+    private string _line = string.Empty;
+
+    [ObservableProperty]
+    private string _column = string.Empty;
+
+    [ObservableProperty]
+    private string _level = string.Empty;
+
+    [ObservableProperty]
+    private string _pitch = string.Empty;
+
+    [ObservableProperty]
+    private string _floor = string.Empty;
+
+    [ObservableProperty]
+    private string _pillar = string.Empty;
+
+    [ObservableProperty]
+    private string _dnsServers = string.Empty;
+
+    [ObservableProperty]
+    private string _defaultGateways = string.Empty;
+
+    [ObservableProperty]
+    private string _subnetMasks = string.Empty;
+
+    [ObservableProperty]
+    private bool _isActive = true;
+
+    [ObservableProperty]
+    private DateTime? _createdAt;
+
+    [ObservableProperty]
+    private DateTime? _updatedAt;
+
+    [ObservableProperty]
+    private DateTime? _lastDiscovered;
+
+    // Extended Database Fields
+    [ObservableProperty]
+    private string _deviceType = "Other";
+
+    [ObservableProperty]
+    private string _assetTag = string.Empty;
+
+    [ObservableProperty]
+    private string _macAddress = string.Empty;
+
+    [ObservableProperty]
+    private string _manufacturer = string.Empty;
+
+    [ObservableProperty]
+    private string _model = string.Empty;
+
+    [ObservableProperty]
+    private string _equipmentGroup = string.Empty;
+
+    [ObservableProperty]
+    private DateTime? _purchaseDate;
+
+    [ObservableProperty]
+    private DateTime? _serviceDate;
+
+    [ObservableProperty]
+    private DateTime? _warrantyDate;
+
+    [ObservableProperty]
+    private string _additionalNotes = string.Empty;
+
+    [ObservableProperty]
+    private string _webLink = string.Empty;
+
+    [ObservableProperty]
+    private string _webLinkName = string.Empty;
+
+    [ObservableProperty]
+    private int _priority = 1;
+
+    [ObservableProperty]
+    private string _hostName = string.Empty;
+
+    [ObservableProperty]
+    private string _domainName = string.Empty;
+
+    [ObservableProperty]
+    private string _workgroup = string.Empty;
+
+    [ObservableProperty]
+    private bool _isDomainJoined = false;
+
+    [ObservableProperty]
+    private string _deviceStatus = "Active";
+
+    [ObservableProperty]
+    private string _cpuInfo = string.Empty;
+
+    [ObservableProperty]
+    private decimal _totalRamGb = 0;
+
+    [ObservableProperty]
+    private string _ramType = string.Empty;
+
+    [ObservableProperty]
+    private string _storageInfo = string.Empty;
+
+    [ObservableProperty]
+    private string _biosVersion = string.Empty;
+
+    [ObservableProperty]
+    private string _osName = string.Empty;
+
+    [ObservableProperty]
+    private string _osVersion = string.Empty;
+
+    [ObservableProperty]
+    private string _osArchitecture = string.Empty;
+
+    [ObservableProperty]
+    private string _primaryIp = string.Empty;
+
+    [ObservableProperty]
+    private string _primaryMac = string.Empty;
+
+    [ObservableProperty]
+    private string _secondaryIps = string.Empty;
+
+    [ObservableProperty]
+    private string _secondaryMacs = string.Empty;
+
+    [ObservableProperty]
+    private string _discoveryMethod = string.Empty;
+
+    [ObservableProperty]
+    private string _serialNumber = string.Empty;
+
+    [ObservableProperty]
+    private string _printerModel = string.Empty;
+
+    [ObservableProperty]
+    private string _webInterfaceUrl = string.Empty;
+
+    [ObservableProperty]
+    private string _streamUrl = string.Empty;
+
+
+    // NetOps Device-specific properties
+    [ObservableProperty]
+    private string _netopDeviceType = "PC";
+
+    // Device Lists for viewing existing devices
+    [ObservableProperty]
+    private ObservableCollection<Printer> _printers = new();
+
+    [ObservableProperty]
+    private ObservableCollection<Camera> _cameras = new();
+
+    [ObservableProperty]
+    private ObservableCollection<DeviceModel> _netopDevices = new();
+
+    [ObservableProperty]
+    private ObservableCollection<DeviceModel> _otherDevices = new();
+
+    // Available options for dropdowns
+    public List<string> DeviceTypes { get; } = new() { "Printer", "Camera", "NetOps", "Other" };
+    public List<string> DatabaseDeviceTypes { get; } = new() { "Printer", "Camera", "PC", "Other" };
+    public List<string> CameraTypes { get; } = new() { "SQM", "FUB", "R100", "R200", "R500", "R800", "Paint", "Assembly", "RUB1", "RUB2", "M100", "M130" };
+    public List<string> PrinterTypes { get; } = new() { "Manifest Primary", "Manifest Backup", "CBG Primary", "CBG Backup", "Printer" };
+    public List<string> NetOpDeviceTypes { get; } = new() { "PC", "Server", "Router", "Switch", "Hirschman", "Scalance", "Firewall", "Access Point" };
+    public List<string> DeviceStatusOptions { get; } = new() { "Active", "Inactive", "Maintenance", "Missing", "Retired" };
+    // Selected items for editing
+    [ObservableProperty]
+    private Printer? _selectedPrinter;
+
+    [ObservableProperty]
+    private Camera? _selectedCamera;
+
+    [ObservableProperty]
+    private DeviceModel? _selectedDevice;
+
+    // Edit mode properties
+    [ObservableProperty]
+    private bool _isEditMode = false;
+
+    [ObservableProperty]
+    private string _editButtonText = "Edit";
+
+    // Search Properties
+    [ObservableProperty]
+    private string _searchQuery = string.Empty;
+
+    [ObservableProperty]
+    private bool _isSearching = false;
+
+    [ObservableProperty]
+    private ObservableCollection<DeviceModel> _searchResults = new();
+
+    [ObservableProperty]
+    private bool _hasSearchResults = false;
+
+    [RelayCommand]
+    private async Task SearchDevices()
+    {
+        if (string.IsNullOrWhiteSpace(SearchQuery))
+        {
+            await _dialogService.ShowAlertAsync("Search Error", "Please enter a search term.");
+            return;
+        }
+
+        IsSearching = true;
+        SearchResults.Clear();
+        HasSearchResults = false;
+
+        try
+        {
+            var results = await _databaseService.SearchDevicesAsync(SearchQuery);
+
+            foreach (var device in results)
+            {
+                SearchResults.Add(device);
+            }
+
+            HasSearchResults = SearchResults.Count > 0;
+
+            if (!HasSearchResults)
+            {
+                await _dialogService.ShowAlertAsync("Search Results", $"No devices found matching '{SearchQuery}'.");
+            }
+        }
+        catch (Exception ex)
+        {
+            await _dialogService.ShowAlertAsync("Search Error", $"An error occurred while searching: {ex.Message}");
+        }
+        finally
+        {
+            IsSearching = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ViewDevice(DeviceModel device)
+    {
+        if (device == null) return;
+
+        var devices = $"Device: {device.Hostname}\n" +
+                        $"IP Address: {device.IpAddress ?? "N/A"}\n" +
+                        $"Location: {device.Area} - {device.Zone} - {device.Line} - {device.Pitch}\n" +
+                        $"Column: {device.Column}\n" +
+                        $"Level: {device.Level}\n" +
+                        $"Type: {device.device_type}\n" +
+                        $"Serial Number: {device.SerialNumber ?? "N/A"}\n" +
+                        $"Asset Tag: {device.AssetTag ?? "N/A"}\n" +
+                        $"Active: {(device.IsActive ? "Yes" : "No")}";
+
+        await _dialogService.ShowAlertAsync($"Device Information - {device.Hostname}", devices);
+    }
+
+    [RelayCommand]
+    private async Task EditSearchedDevice(DeviceModel device)
+    {
+        if (device == null) return;
+
+        // Clear search results and switch to edit mode
+        SearchResults.Clear();
+        HasSearchResults = false;
+        SearchQuery = string.Empty;
+
+        // Set the device for editing based on its type
+        SelectedDevice = device;
+
+        // Determine device type from the device data
+        string deviceType = "Other";
+        if (!string.IsNullOrEmpty(device.device_type))
+        {
+            // Map device types
+            if (device.device_type.ToLower().Contains("printer"))
+                deviceType = "Printer";
+            else if (device.device_type.ToLower().Contains("camera"))
+                deviceType = "Camera";
+            else if (device.device_type.ToLower().Contains("netop"))
+                deviceType = "NetOp Device";
+        }
+
+        SelectedDeviceType = deviceType;
+
+        // Populate all edit fields
+        EditDeviceName = device.Hostname ?? string.Empty;
+        EditSelectedDeviceType = device.device_type ?? string.Empty;
+        EditIpAddress = device.IpAddress ?? string.Empty;
+        EditArea = device.Area ?? string.Empty;
+        EditZone = device.Zone ?? string.Empty;
+        EditLine = device.Line ?? string.Empty;
+        EditColumn = device.Column ?? string.Empty;
+        EditLevel = device.Level ?? string.Empty;
+        EditPitch = device.Pitch ?? string.Empty;
+        EditHostName = device.Hostname ?? string.Empty;  // Note: it's "Hostname" not "HostName"
+        EditPriority = device.Priority;
+        EditManufacturer = device.Manufacturer ?? string.Empty;
+        EditModel = device.Model ?? string.Empty;
+        EditSerialNumber = device.SerialNumber ?? string.Empty;
+        EditAssetTag = device.AssetTag ?? string.Empty;
+        EditMacAddress = device.MacAddress ?? string.Empty;
+        EditEquipmentGroup = string.Empty;  // Not available in Device model
+        EditPurchaseDate = device.PurchaseDate ?? DateTime.Now;
+        EditServiceDate = device.ServiceDate ?? DateTime.Now;
+        EditWarrantyDate = device.WarrantyDate ?? DateTime.Now;
+        EditWebLink = device.WebLink ?? string.Empty;
+        EditWebLinkName = device.WebLinkName ?? string.Empty;
+        EditNotes = device.AdditionalNotes ?? string.Empty;
+        EditIsActive = device.IsActive;
+        EditType = device.device_type ?? string.Empty;
+        EditWebInterfaceUrl = string.Empty;  // Not available in Device model
+
+        // Device-specific fields - only for devices from search which are always DeviceModel
+        // Search returns DeviceModel objects, not specific Printer/Camera types
+        EditPrinterType = string.Empty;
+        EditDriverName = string.Empty;
+        EditCameraType = string.Empty;
+        EditStreamUrl = string.Empty;
+        EditNetopDeviceType = device.device_type ?? string.Empty;
+
+        // Switch to edit mode
+        IsEditMode = true;
+        EditButtonText = "Cancel";
+
+        await _dialogService.ShowAlertAsync("Edit Mode", $"Now editing '{device.Hostname}'. Make your changes and click Save Changes.");
+    }
+
+    [RelayCommand]
+    private void ClearSearch()
+    {
+        SearchQuery = string.Empty;
+        SearchResults.Clear();
+        HasSearchResults = false;
+    }
+
+    [ObservableProperty]
+    private string _editDeviceName = string.Empty;
+
+    [ObservableProperty]
+    private string _editArea = string.Empty;
+
+    [ObservableProperty]
+    private string _editZone = string.Empty;
+
+    [ObservableProperty]
+    private string _editLine = string.Empty;
+
+    [ObservableProperty]
+    private string _editColumn = string.Empty;
+
+    [ObservableProperty]
+    private string _editLevel = string.Empty;
+
+    [ObservableProperty]
+    private string _editType = string.Empty;
+
+    // Additional Edit Properties for comprehensive form
+    [ObservableProperty]
+    private string _editSelectedDeviceType = string.Empty;
+
+    [ObservableProperty]
+    private string _editIpAddress = string.Empty;
+
+    [ObservableProperty]
+    private string _editPitch = string.Empty;
+
+    [ObservableProperty]
+    private string _editHostName = string.Empty;
+
+    [ObservableProperty]
+    private int _editPriority = 1;
+
+    [ObservableProperty]
+    private string _editManufacturer = string.Empty;
+
+    [ObservableProperty]
+    private string _editModel = string.Empty;
+
+    [ObservableProperty]
+    private string _editSerialNumber = string.Empty;
+
+    [ObservableProperty]
+    private string _editAssetTag = string.Empty;
+
+    [ObservableProperty]
+    private string _editMacAddress = string.Empty;
+
+    [ObservableProperty]
+    private string _editEquipmentGroup = string.Empty;
+
+    [ObservableProperty]
+    private DateTime _editPurchaseDate = DateTime.Now;
+
+    [ObservableProperty]
+    private DateTime _editServiceDate = DateTime.Now;
+
+    [ObservableProperty]
+    private DateTime _editWarrantyDate = DateTime.Now;
+
+    [ObservableProperty]
+    private string _editWebLink = string.Empty;
+
+    [ObservableProperty]
+    private string _editWebLinkName = string.Empty;
+
+    [ObservableProperty]
+    private string _editNotes = string.Empty;
+
+    [ObservableProperty]
+    private bool _editIsActive = true;
+
+    [ObservableProperty]
+    private string _editPrinterType = string.Empty;
+
+    [ObservableProperty]
+    private string _editDriverName = string.Empty;
+
+    [ObservableProperty]
+    private string _editCameraType = string.Empty;
+
+    [ObservableProperty]
+    private string _editStreamUrl = string.Empty;
+
+    [ObservableProperty]
+    private string _editNetopDeviceType = string.Empty;
+
+    [ObservableProperty]
+    private string _editWebInterfaceUrl = string.Empty;
+
+    public DatabaseAdminViewModel(
+        ILogger<DatabaseAdminViewModel> logger,
+        INavigationService navigationService,
+        IDialogService dialogService,
+        IPrinterService printerService,
+        ICameraService cameraService,
+        INetopService netopService,
+        IDatabaseService databaseService,
+        IAddDeviceService addDeviceService,
+        IUpdateDeviceService updateDeviceService)
+        : base(logger, navigationService, dialogService)
+    {
+        Title = "Database Admin";
+        _dialogService = dialogService;
+        _printerService = printerService;
+        _cameraService = cameraService;
+        _netopService = netopService;
+        _databaseService = databaseService;
+        _addDeviceService = addDeviceService;
+        _updateDeviceService = updateDeviceService;
+
+
+        // Load existing devices
+        _ = LoadAllDevicesCommand.ExecuteAsync(null);
+    }
+
+
+    [RelayCommand]
+    private async Task LoadAllDevices()
+    {
+        await ExecuteSafelyAsync(async () =>
+        {
+            var printersTask = _databaseService.GetDevicesAsync("Printer");
+            var camerasTask = _databaseService.GetDevicesAsync("Camera");
+            var devicesTask = _databaseService.GetDevicesAsync("NetOp");
+            var otherDevicesTask = _databaseService.GetDevicesAsync("Other");
+
+            await Task.WhenAll(printersTask, camerasTask, devicesTask, otherDevicesTask);
+
+            var printerDevices = await printersTask;
+            var cameraDevices = await camerasTask;
+            var netopDevices = await devicesTask;
+            var otherDevices = await otherDevicesTask;
+
+            // Convert Device models to legacy Printer/Camera models for UI compatibility
+            Printers = new ObservableCollection<Printer>(printerDevices.Select(d => new Printer
+            {
+                Id = d.device_id.ToString(),
+                Name = d.Hostname,
+                IpAddress = d.IpAddress ?? string.Empty,
+                Area = d.Area,
+                Zone = d.Zone,
+                Line = d.Line,
+                Column = d.Column,
+                Level = d.Level,
+                Model = d.Model ?? d.device_type ?? string.Empty,
+                SerialNumber = d.SerialNumber ?? string.Empty
+            }));
+
+            Cameras = new ObservableCollection<Camera>(cameraDevices.Select(d => new Camera
+            {
+                Id = d.device_id,
+                Name = d.Hostname,
+                IpAddress = d.IpAddress ?? string.Empty,
+                Area = d.Area,
+                Zone = d.Zone,
+                Line = d.Line,
+                Column = d.Column,
+                Level = d.Level,
+                Model = d.Model ?? d.device_type ?? string.Empty,
+            }));
+
+            NetopDevices = new ObservableCollection<DeviceModel>(netopDevices);
+            OtherDevices = new ObservableCollection<DeviceModel>(otherDevices);
+
+            _logger.LogInformation("Retrieved {PrinterCount} printers, {CameraCount} cameras, {NetOpCount} netop devices, {OtherCount} other devices from database",
+                Printers.Count, Cameras.Count, NetopDevices.Count, OtherDevices.Count);
+
+            // Debug: Log first few devices if any exist
+            if (printerDevices.Any())
+            {
+                _logger.LogInformation("Sample printer device: {Hostname} (Type: {Type}, DeviceType: {DeviceType})",
+                    printerDevices.First().Hostname, printerDevices.First().device_type, "Printer");
+            }
+            if (netopDevices.Any())
+            {
+                _logger.LogInformation("Sample netop device: {Hostname} (Type: {Type}, DeviceType: {DeviceType})",
+                    netopDevices.First().Hostname, netopDevices.First().device_type, "NetOp");
+            }
+            if (otherDevices.Any())
+            {
+                _logger.LogInformation("Sample other device: {Hostname} (Type: {Type}, DeviceType: {DeviceType})",
+                    otherDevices.First().Hostname, otherDevices.First().device_type, "Other");
+            }
+
+        }, "Load All Devices");
+    }
+
+    [RelayCommand]
+    private void ClearForm()
+    {
+        DeviceName = string.Empty;
+        IpAddress = string.Empty;
+        HostName = string.Empty;
+        Area = string.Empty;
+        Zone = string.Empty;
+        Line = string.Empty;
+        Column = string.Empty;
+        Level = string.Empty;
+        Pitch = string.Empty;
+        SerialNumber = string.Empty;
+        AssetTag = string.Empty;
+        MacAddress = string.Empty;
+        Manufacturer = string.Empty;
+        Model = string.Empty;
+        EquipmentGroup = string.Empty;
+        AdditionalNotes = string.Empty;
+        WebLink = string.Empty;
+        WebLinkName = string.Empty;
+        PurchaseDate = null;
+        ServiceDate = null;
+        WarrantyDate = null;
+        Priority = 1;
+        IsActive = true;
+        DeviceType = "Other";
+
+        // Legacy fields
+        PrinterModel = string.Empty;
+        WebInterfaceUrl = string.Empty;
+        StreamUrl = string.Empty;
+
+        _logger.LogInformation("Form cleared");
+    }
+
+    [RelayCommand]
+    private void ResetForm()
+    {
+        ClearForm();
+    }
+
+    [RelayCommand]
+    private async Task DeletePrinter(Printer printer)
+    {
+        if (printer == null) return;
+
+        var confirmed = await _dialogService.ShowConfirmationAsync(
+            "Delete Printer",
+            $"Are you sure you want to delete printer '{printer.Name}'?");
+
+        if (confirmed)
+        {
+            await ExecuteSafelyAsync(async () =>
+            {
+                // Convert printer.Id from string to int for the unified delete method
+                if (int.TryParse(printer.Id, out int deviceId))
+                {
+                    var success = await _databaseService.DeleteDeviceAsync(deviceId);
+                    if (success)
+                    {
+                        Printers.Remove(printer);
+                        await _dialogService.ShowAlertAsync("Success", $"Printer '{printer.Name}' has been deleted from the database.");
+                        _logger.LogInformation("Deleted printer: {PrinterName}", printer.Name);
+                    }
+                    else
+                    {
+                        await _dialogService.ShowAlertAsync("Error", $"Failed to delete printer '{printer.Name}' from the database.");
+                        _logger.LogError("Failed to delete printer: {PrinterName}", printer.Name);
+                    }
+                }
+                else
+                {
+                    await _dialogService.ShowAlertAsync("Error", $"Invalid printer ID format for '{printer.Name}'.");
+                    _logger.LogError("Invalid printer ID format: {PrinterId}", printer.Id);
+                }
+            }, "Delete Printer");
+        }
+    }
+
+    [RelayCommand]
+    private async Task DeleteCamera(Camera camera)
+    {
+        if (camera == null) return;
+
+        var confirmed = await _dialogService.ShowConfirmationAsync(
+            "Delete Camera",
+            $"Are you sure you want to delete camera '{camera.Name}'?");
+
+        if (confirmed)
+        {
+            await ExecuteSafelyAsync(async () =>
+            {
+                var success = await _databaseService.DeleteDeviceAsync(camera.Id);
+                if (success)
+                {
+                    Cameras.Remove(camera);
+                    await _dialogService.ShowAlertAsync("Success", $"Camera '{camera.Name}' has been deleted from the database.");
+                    _logger.LogInformation("Deleted camera: {CameraName}", camera.Name);
+                }
+                else
+                {
+                    await _dialogService.ShowAlertAsync("Error", $"Failed to delete camera '{camera.Name}' from the database.");
+                    _logger.LogError("Failed to delete camera: {CameraName}", camera.Name);
+                }
+            }, "Delete Camera");
+        }
+    }
+
+    [RelayCommand]
+    private async Task DeleteNetopDevice(DeviceModel device)
+    {
+        if (device == null) return;
+
+        var confirmed = await _dialogService.ShowConfirmationAsync(
+            "Delete Device",
+            $"Are you sure you want to delete device '{device.Hostname}'?");
+
+        if (confirmed)
+        {
+            await ExecuteSafelyAsync(async () =>
+            {
+                var success = await _databaseService.DeleteDeviceAsync(device.device_id);
+                if (success)
+                {
+                    NetopDevices.Remove(device);
+                    await _dialogService.ShowAlertAsync("Success", $"Device '{device.Hostname}' has been deleted from the database.");
+                    _logger.LogInformation("Deleted netop device: {Hostname}", device.Hostname);
+                }
+                else
+                {
+                    await _dialogService.ShowAlertAsync("Error", $"Failed to delete device '{device.Hostname}' from the database.");
+                    _logger.LogError("Failed to delete device: {Hostname}", device.Hostname);
+                }
+            }, "Delete Device");
+        }
+    }
+
+    [RelayCommand]
+    private async Task DeleteOtherDevice(DeviceModel device)
+    {
+        if (device == null) return;
+
+        var confirmed = await _dialogService.ShowConfirmationAsync(
+            "Delete Device",
+            $"Are you sure you want to delete device '{device.Hostname}'?");
+
+        if (confirmed)
+        {
+            await ExecuteSafelyAsync(async () =>
+            {
+                var success = await _databaseService.DeleteDeviceAsync(device.device_id);
+                if (success)
+                {
+                    OtherDevices.Remove(device);
+                    await _dialogService.ShowAlertAsync("Success", $"Device '{device.Hostname}' has been deleted from the database.");
+                    _logger.LogInformation("Deleted other device: {Hostname}", device.Hostname);
+                }
+                else
+                {
+                    await _dialogService.ShowAlertAsync("Error", $"Failed to delete device '{device.Hostname}' from the database.");
+                    _logger.LogError("Failed to delete device: {Hostname}", device.Hostname);
+                }
+            }, "Delete Device");
+        }
+    }
+
+    [RelayCommand]
+    private void ToggleEditMode(object? device = null)
+    {
+        IsEditMode = !IsEditMode;
+        EditButtonText = IsEditMode ? "Cancel" : "Edit";
+
+        if (IsEditMode && device != null)
+        {
+            // Set the selected device based on type and copy all fields to edit fields
+            if (device is Printer printer)
+            {
+                SelectedPrinter = printer;
+                SelectedDeviceType = "Printer";
+                PopulateEditFieldsFromPrinter(printer);
+            }
+            else if (device is Camera camera)
+            {
+                SelectedCamera = camera;
+                SelectedDeviceType = "Camera";
+                PopulateEditFieldsFromCamera(camera);
+            }
+            else if (device is DeviceModel deviceModel)
+            {
+                SelectedDevice = deviceModel;
+                SelectedDeviceType = "NetOp Device";
+                PopulateEditFieldsFromDevice(deviceModel);
+            }
+        }
+        else if (IsEditMode)
+        {
+            // Copy current selection to edit fields (fallback for when no device parameter)
+            if (SelectedDeviceType == "Printer" && SelectedPrinter != null)
+            {
+                PopulateEditFieldsFromPrinter(SelectedPrinter);
+            }
+            else if (SelectedDeviceType == "Camera" && SelectedCamera != null)
+            {
+                PopulateEditFieldsFromCamera(SelectedCamera);
+            }
+            else if (SelectedDeviceType == "NetOp Device" && SelectedDevice != null)
+            {
+                PopulateEditFieldsFromDevice(SelectedDevice);
+            }
+        }
+        else
+        {
+            // Clear edit fields when canceling
+            ClearEditFields();
+        }
+    }
+
+    private void PopulateEditFieldsFromPrinter(Printer printer)
+    {
+        EditDeviceName = printer.Name ?? string.Empty;
+        EditSelectedDeviceType = "Printer";
+        EditIpAddress = printer.IpAddress ?? string.Empty;
+        EditArea = printer.Area ?? string.Empty;
+        EditZone = printer.Zone ?? string.Empty;
+        EditLine = printer.Line ?? string.Empty;
+        EditColumn = printer.Column ?? string.Empty;
+        EditLevel = printer.Level ?? string.Empty;
+        EditModel = printer.Model ?? string.Empty;
+        EditSerialNumber = printer.SerialNumber ?? string.Empty;
+
+        // Set defaults for properties not available in Printer model
+        EditPitch = string.Empty;
+        EditHostName = string.Empty;
+        EditPriority = 1;
+        EditManufacturer = string.Empty;
+        EditAssetTag = string.Empty;
+        EditMacAddress = string.Empty;
+        EditEquipmentGroup = string.Empty;
+        EditPurchaseDate = DateTime.Now;
+        EditServiceDate = DateTime.Now;
+        EditWarrantyDate = DateTime.Now;
+        EditWebLink = string.Empty;
+        EditWebLinkName = string.Empty;
+        EditNotes = string.Empty;
+        EditIsActive = true;
+        EditType = printer.Model ?? string.Empty;
+        EditWebInterfaceUrl = printer.WebInterfaceUrl ?? string.Empty;
+        EditPrinterType = string.Empty;
+        EditDriverName = string.Empty;
+    }
+
+    private void PopulateEditFieldsFromCamera(Camera camera)
+    {
+        EditDeviceName = camera.Name ?? string.Empty;
+        EditSelectedDeviceType = "Camera";
+        EditIpAddress = camera.IpAddress ?? string.Empty;
+        EditArea = camera.Area ?? string.Empty;
+        EditZone = camera.Zone ?? string.Empty;
+        EditLine = camera.Line ?? string.Empty;
+        EditColumn = camera.Column ?? string.Empty;
+        EditLevel = camera.Level ?? string.Empty;
+        EditModel = camera.Model ?? string.Empty;
+
+        // Set defaults for properties not available in Camera model
+        EditPitch = string.Empty;
+        EditHostName = string.Empty;
+        EditPriority = 1;
+        EditManufacturer = string.Empty;
+        EditSerialNumber = string.Empty;
+        EditAssetTag = string.Empty;
+        EditMacAddress = string.Empty;
+        EditEquipmentGroup = string.Empty;
+        EditPurchaseDate = DateTime.Now;
+        EditServiceDate = DateTime.Now;
+        EditWarrantyDate = DateTime.Now;
+        EditWebLink = string.Empty;
+        EditWebLinkName = string.Empty;
+        EditNotes = string.Empty;
+        EditIsActive = true;
+        EditType = camera.Model ?? string.Empty;
+        EditWebInterfaceUrl = camera.WebInterfaceUrl ?? string.Empty;
+        EditCameraType = string.Empty;
+        EditStreamUrl = string.Empty;
+    }
+
+    private void PopulateEditFieldsFromDevice(DeviceModel deviceModel)
+    {
+        EditDeviceName = deviceModel.Hostname ?? string.Empty;
+        EditSelectedDeviceType = "NetOp Device";
+        EditIpAddress = deviceModel.IpAddress ?? string.Empty;
+        EditArea = deviceModel.Area ?? string.Empty;
+        EditZone = deviceModel.Zone ?? string.Empty;
+        EditLine = deviceModel.Line ?? string.Empty;
+        EditColumn = deviceModel.Column ?? string.Empty;
+        EditLevel = deviceModel.Level ?? string.Empty;
+        EditPitch = deviceModel.Pitch ?? string.Empty;
+        EditHostName = deviceModel.Hostname ?? string.Empty;
+        EditPriority = deviceModel.Priority;
+        EditManufacturer = deviceModel.Manufacturer ?? string.Empty;
+        EditModel = deviceModel.Model ?? string.Empty;
+        EditSerialNumber = deviceModel.SerialNumber ?? string.Empty;
+        EditAssetTag = deviceModel.AssetTag ?? string.Empty;
+        EditMacAddress = deviceModel.MacAddress ?? string.Empty;
+        EditPurchaseDate = deviceModel.PurchaseDate ?? DateTime.Now;
+        EditServiceDate = deviceModel.ServiceDate ?? DateTime.Now;
+        EditWarrantyDate = deviceModel.WarrantyDate ?? DateTime.Now;
+        EditWebLink = deviceModel.WebLink ?? string.Empty;
+        EditWebLinkName = deviceModel.WebLinkName ?? string.Empty;
+        EditNotes = deviceModel.AdditionalNotes ?? string.Empty;
+        EditIsActive = deviceModel.IsActive;
+        EditType = deviceModel.device_type ?? string.Empty;
+        EditNetopDeviceType = deviceModel.device_type ?? string.Empty;
+
+        // Set defaults for properties not available in Device model
+        EditEquipmentGroup = string.Empty;
+        EditWebInterfaceUrl = string.Empty;
+    }
+
+    [RelayCommand]
+    private async Task UpdateDevice()
+    {
+        await ExecuteSafelyAsync(async () =>
+        {
+            // Validate edit fields
+            if (string.IsNullOrWhiteSpace(EditDeviceName))
+            {
+                await _dialogService.ShowAlertAsync("Validation Error", "Device Name is required.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(EditIpAddress))
+            {
+                await _dialogService.ShowAlertAsync("Validation Error", "IP Address is required.");
+                return;
+            }
+
+            bool success = false;
+            string deviceTypeName = "";
+
+            if (SelectedDeviceType == "Printer" && SelectedPrinter != null)
+            {
+                // Update the printer object with available edit fields
+                SelectedPrinter.Name = EditDeviceName;
+                SelectedPrinter.IpAddress = EditIpAddress;
+                SelectedPrinter.Area = EditArea;
+                SelectedPrinter.Zone = EditZone;
+                SelectedPrinter.Line = EditLine;
+                SelectedPrinter.Column = EditColumn;
+                SelectedPrinter.Level = EditLevel;
+                SelectedPrinter.Model = EditModel;
+                SelectedPrinter.SerialNumber = EditSerialNumber;
+
+                var device = new DeviceModel
+                {
+                    device_id = int.TryParse(SelectedPrinter.Id, out var id) ? id : 0,
+                    IpAddress = EditIpAddress,
+                    Hostname = EditHostName,
+                    Area = EditArea,
+                    Zone = EditZone,
+                    Line = EditLine,
+                    Column = EditColumn,
+                    Level = EditLevel,
+                    Pitch = EditPitch,
+                    Priority = EditPriority,
+                    Manufacturer = EditManufacturer,
+                    Model = EditModel,
+                    SerialNumber = EditSerialNumber,
+                    AssetTag = EditAssetTag,
+                    MacAddress = EditMacAddress,
+                    PurchaseDate = EditPurchaseDate,
+                    ServiceDate = EditServiceDate,
+                    WarrantyDate = EditWarrantyDate,
+                    WebLink = EditWebLink,
+                    WebLinkName = EditWebLinkName,
+                    AdditionalNotes = EditNotes,
+                    device_type = EditType,
+                    Department = string.Empty,
+                    Location = $"{EditArea} - {EditZone} - {EditLine}",
+                    IsActive = EditIsActive
+                };
+
+                success = await _databaseService.UpdateDeviceAsync(device, "Printer");
+                deviceTypeName = "Printer";
+            }
+            else if (SelectedDeviceType == "Camera" && SelectedCamera != null)
+            {
+                // Update the camera object with available edit fields
+                SelectedCamera.Name = EditDeviceName;
+                SelectedCamera.IpAddress = EditIpAddress;
+                SelectedCamera.Area = EditArea;
+                SelectedCamera.Zone = EditZone;
+                SelectedCamera.Line = EditLine;
+                SelectedCamera.Column = EditColumn;
+                SelectedCamera.Level = EditLevel;
+                SelectedCamera.Model = EditModel;
+
+                var device = new DeviceModel
+                {
+                    device_id = SelectedCamera.Id,
+                    IpAddress = EditIpAddress,
+                    Hostname = EditHostName,
+                    Area = EditArea,
+                    Zone = EditZone,
+                    Line = EditLine,
+                    Column = EditColumn,
+                    Level = EditLevel,
+                    Pitch = EditPitch,
+                    Priority = EditPriority,
+                    Manufacturer = EditManufacturer,
+                    Model = EditModel,
+                    SerialNumber = EditSerialNumber,
+                    AssetTag = EditAssetTag,
+                    MacAddress = EditMacAddress,
+                    PurchaseDate = EditPurchaseDate,
+                    ServiceDate = EditServiceDate,
+                    WarrantyDate = EditWarrantyDate,
+                    WebLink = EditWebLink,
+                    WebLinkName = EditWebLinkName,
+                    AdditionalNotes = EditNotes,
+                    device_type = EditType,
+                    Department = string.Empty,
+                    Location = $"{EditArea} - {EditZone} - {EditLine}",
+                    IsActive = EditIsActive
+                };
+
+                success = await _databaseService.UpdateDeviceAsync(device, "Camera");
+                deviceTypeName = "Camera";
+            }
+            else if (SelectedDeviceType == "NetOp Device" && SelectedDevice != null)
+            {
+                // Update the device object with all edit fields
+                SelectedDevice.IpAddress = EditIpAddress;
+                SelectedDevice.Hostname = EditHostName;
+                SelectedDevice.Area = EditArea;
+                SelectedDevice.Zone = EditZone;
+                SelectedDevice.Line = EditLine;
+                SelectedDevice.Column = EditColumn;
+                SelectedDevice.Level = EditLevel;
+                SelectedDevice.Pitch = EditPitch;
+                SelectedDevice.Priority = EditPriority;
+                SelectedDevice.Manufacturer = EditManufacturer;
+                SelectedDevice.Model = EditModel;
+                SelectedDevice.SerialNumber = EditSerialNumber;
+                SelectedDevice.AssetTag = EditAssetTag;
+                SelectedDevice.MacAddress = EditMacAddress;
+                SelectedDevice.PurchaseDate = EditPurchaseDate;
+                SelectedDevice.ServiceDate = EditServiceDate;
+                SelectedDevice.WarrantyDate = EditWarrantyDate;
+                SelectedDevice.WebLink = EditWebLink;
+                SelectedDevice.WebLinkName = EditWebLinkName;
+                SelectedDevice.AdditionalNotes = EditNotes;
+                SelectedDevice.device_type = EditType;
+                SelectedDevice.Department = string.Empty;
+                SelectedDevice.Location = $"{EditArea} - {EditZone} - {EditLine}";
+                SelectedDevice.IsActive = EditIsActive;
+
+                success = await _databaseService.UpdateDeviceAsync(SelectedDevice, "NetOp");
+                deviceTypeName = "NetOp Device";
+            }
+
+            if (success)
+            {
+                await _dialogService.ShowAlertAsync("Success", $"{deviceTypeName} '{EditDeviceName}' updated successfully!");
+                _logger.LogInformation("Updated {DeviceType}: {DeviceName}", deviceTypeName, EditDeviceName);
+
+                // Exit edit mode
+                IsEditMode = false;
+                EditButtonText = "Edit";
+                ClearEditFields();
+
+                // Reload the device lists to show updated data
+                await LoadAllDevicesCommand.ExecuteAsync(null);
+            }
+            else
+            {
+                string errorDetails = "No additional error details available.";
+                Exception? updateException = null;
+                try
+                {
+                    // Simulate error details retrieval if needed
+                }
+                catch (Exception ex)
+                {
+                    errorDetails = ex.ToString();
+                    updateException = ex;
+                }
+
+                await _dialogService.ShowAlertAsync("Error", $"Failed to update {HostName.ToLower()}.\nDetails: {errorDetails}");
+                _logger.LogError("Failed to update Device: {Hostname}. Details: {ErrorDetails}", HostName, errorDetails);
+            }
+        }, "Update Device");
+    }
+
+    private void ClearEditFields()
+    {
+        EditDeviceName = string.Empty;
+        EditSelectedDeviceType = string.Empty;
+        EditIpAddress = string.Empty;
+        EditArea = string.Empty;
+        EditZone = string.Empty;
+        EditLine = string.Empty;
+        EditColumn = string.Empty;
+        EditLevel = string.Empty;
+        EditPitch = string.Empty;
+        EditHostName = string.Empty;
+        EditPriority = 1;
+        EditManufacturer = string.Empty;
+        EditModel = string.Empty;
+        EditSerialNumber = string.Empty;
+        EditAssetTag = string.Empty;
+        EditMacAddress = string.Empty;
+        EditEquipmentGroup = string.Empty;
+        EditPurchaseDate = DateTime.Now;
+        EditServiceDate = DateTime.Now;
+        EditWarrantyDate = DateTime.Now;
+        EditWebLink = string.Empty;
+        EditWebLinkName = string.Empty;
+        EditNotes = string.Empty;
+        EditIsActive = true;
+        EditType = string.Empty;
+        EditPrinterType = string.Empty;
+        EditDriverName = string.Empty;
+        EditCameraType = string.Empty;
+        EditStreamUrl = string.Empty;
+        EditNetopDeviceType = string.Empty;
+        EditWebInterfaceUrl = string.Empty;
+    }
+
+    /// <summary>
+    /// Validates and sanitizes all user input to prevent SQL injection and other security issues
+    /// </summary>
+    private void ValidateAndSanitizeInput()
+    {
+        // Sanitize string fields
+        DeviceName = InputSanitizer.SanitizeString(DeviceName);
+        HostName = InputSanitizer.SanitizeHostname(HostName);
+        Area = InputSanitizer.SanitizeAlphanumeric(Area);
+        Zone = InputSanitizer.SanitizeAlphanumeric(Zone);
+        Line = InputSanitizer.SanitizeAlphanumeric(Line);
+        Column = InputSanitizer.SanitizeAlphanumeric(Column);
+        Level = InputSanitizer.SanitizeAlphanumeric(Level);
+        Pitch = InputSanitizer.SanitizeAlphanumeric(Pitch);
+        EquipmentGroup = InputSanitizer.SanitizeAlphanumeric(EquipmentGroup);
+        AssetTag = InputSanitizer.SanitizeAlphanumeric(AssetTag);
+        Manufacturer = InputSanitizer.SanitizeString(Manufacturer);
+        Model = InputSanitizer.SanitizeString(Model);
+        SerialNumber = InputSanitizer.SanitizeAlphanumeric(SerialNumber);
+        AdditionalNotes = InputSanitizer.SanitizeNotes(AdditionalNotes) ?? string.Empty;
+        WebLink = InputSanitizer.SanitizeUrl(WebLink) ?? string.Empty;
+        WebLinkName = InputSanitizer.SanitizeString(WebLinkName);
+
+        // Validate IP address if provided
+        if (!string.IsNullOrEmpty(IpAddress))
+        {
+            IpAddress = InputSanitizer.SanitizeIPAddress(IpAddress) ?? string.Empty;
+        }
+
+        // Validate priority
+        Priority = InputSanitizer.SanitizePriority(Priority);
+
+        // Validate device type
+        SelectedDeviceType = InputSanitizer.SanitizeDeviceType(SelectedDeviceType);
+    }
+
+    /// <summary>
+    /// Implementation of ILoadableViewModel.LoadDataCommand
+    /// Aliases to LoadAllDevicesCommand for automatic page loading
+    /// </summary>
+    public IAsyncRelayCommand LoadDataCommand => LoadAllDevicesCommand;
+
+    [RelayCommand]
+    private async Task AddDevice()
+    {
+        await ExecuteSafelyAsync(async () =>
+        {
+            // Validate required fields
+            if (string.IsNullOrWhiteSpace(DeviceName))
+            {
+                await _dialogService.ShowAlertAsync("Validation Error", "Device Name is required.");
+                return;
+            }
+
+            // Validate IP address format if provided
+            if (!string.IsNullOrWhiteSpace(IpAddress) && !System.Net.IPAddress.TryParse(IpAddress, out _))
+            {
+                await _dialogService.ShowAlertAsync("Validation Error", "Please enter a valid IP address or leave it empty.");
+                return;
+            }
+
+            // Validate priority range
+            if (Priority < 1 || Priority > 10)
+            {
+                await _dialogService.ShowAlertAsync("Validation Error", "Priority must be between 1 and 10.");
+                return;
+            }
+
+            // Validate and sanitize input to prevent SQL injection
+            try
+            {
+                ValidateAndSanitizeInput();
+            }
+            catch (ArgumentException ex)
+            {
+                await _dialogService.ShowAlertAsync("Input Error", $"Invalid input detected: {ex.Message}");
+                return;
+            }
+
+            var device = new DeviceModel
+            {
+                Hostname = HostName,
+                device_type = SelectedDeviceType,
+                Area = Area,
+                Zone = Zone,
+                Line = Line,
+                Column = Column,
+                Level = Level,
+                Pitch = Pitch,
+                EquipmentGroup = EquipmentGroup,
+                Department = string.Empty,
+                Location = $"{Area} - {Zone} - {Line}",
+                IsActive = IsActive,
+                IpAddress = IpAddress,
+                Priority = Priority,
+                SerialNumber = SerialNumber,
+                AssetTag = AssetTag,
+                MacAddress = MacAddress,
+                Manufacturer = Manufacturer,
+                Model = Model,
+                PurchaseDate = PurchaseDate,
+                ServiceDate = ServiceDate,
+                WarrantyDate = WarrantyDate,
+                AdditionalNotes = AdditionalNotes,
+                WebLink = WebLink,
+                WebLinkName = WebLinkName
+            };
+
+            var success = await _databaseService.AddDeviceAsync(device, SelectedDeviceType);
+
+            if (success)
+            {
+                await _dialogService.ShowAlertAsync("Success", $"Device '{DeviceName}' added successfully to database!");
+                _logger.LogInformation("Added new device: {DeviceName} at {IpAddress}", DeviceName, IpAddress);
+            }
+            else
+            {
+                await _dialogService.ShowAlertAsync("Error", $"Failed to add device '{DeviceName}' to database. Please try again.");
+                _logger.LogError("Failed to add device: {DeviceName} at {IpAddress}", DeviceName, IpAddress);
+            }
+
+            // Clear form after successful addition
+            ClearForm();
+            // Reload devices to show the new addition
+            await LoadAllDevicesCommand.ExecuteAsync(null);
+        }, "Add Device");
+    }
+}

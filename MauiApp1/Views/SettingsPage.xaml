@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:MauiApp1.Controls"
+             x:Class="MauiApp1.Views.SettingsPage"
+             Title="{Binding Title}"
+             BackgroundColor="{StaticResource PageBackgroundBrush}">
+    
+    <Grid RowDefinitions="Auto,*">
+        
+        <!-- Application Header -->
+        <controls:AppHeader Grid.Row="0" />
+        
+        <!-- Content -->
+        <ScrollView Grid.Row="1">
+        <VerticalStackLayout Spacing="20" Padding="20">
+            
+            <Label 
+                Text="⚙️ Settings" 
+                Style="{StaticResource Headline}"
+                HorizontalOptions="Center" />
+                
+            <Label 
+                Text="Application configuration and preferences"
+                Style="{StaticResource SubHeadline}"
+                HorizontalOptions="Center" />
+            
+            <!-- Theme & Appearance Section -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2B2B2B}" 
+                   Padding="15" 
+                   CornerRadius="10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="🎨 Theme &amp; Appearance" 
+                           FontSize="18" 
+                           FontAttributes="Bold" />
+                    
+                    <!-- Theme Selection -->
+                    <Grid ColumnDefinitions="*,200">
+                        <Label Grid.Column="0" 
+                               Text="Theme" 
+                               VerticalOptions="Center" />
+                        <Picker Grid.Column="1" 
+                                ItemsSource="{Binding ThemeOptions}"
+                                SelectedItem="{Binding SelectedTheme}" />
+                    </Grid>
+                    
+                    <!-- Grid Layout -->
+                    <Grid ColumnDefinitions="*,200">
+                        <Label Grid.Column="0" 
+                               Text="Grid Columns" 
+                               VerticalOptions="Center" />
+                        <Picker Grid.Column="1" 
+                                ItemsSource="{Binding GridSpanOptions}"
+                                SelectedItem="{Binding GridSpan}" />
+                    </Grid>
+                    
+                    <!-- Font Size -->
+                    <Grid ColumnDefinitions="*,200">
+                        <Label Grid.Column="0" 
+                               Text="Font Size" 
+                               VerticalOptions="Center" />
+                        <Picker Grid.Column="1" 
+                                ItemsSource="{Binding FontSizeOptions}"
+                                SelectedItem="{Binding SelectedFontSize}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+            
+            <!-- Auto-refresh Section -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2B2B2B}" 
+                   Padding="15" 
+                   CornerRadius="10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="🔄 Auto-refresh Settings" 
+                           FontSize="18" 
+                           FontAttributes="Bold" />
+                    
+                    <!-- Device Refresh -->
+                    <Grid ColumnDefinitions="*,200">
+                        <StackLayout Grid.Column="0" VerticalOptions="Center">
+                            <Label Text="NetOps Devices" />
+                            <Label Text="{Binding DeviceRefreshInterval, StringFormat='{0} seconds'}" 
+                                   FontSize="12" 
+                                   TextColor="Gray" />
+                        </StackLayout>
+                        <Picker Grid.Column="1" 
+                                ItemsSource="{Binding RefreshIntervalOptions}"
+                                SelectedItem="{Binding DeviceRefreshInterval}" />
+                    </Grid>
+                    
+                    <!-- Camera Refresh -->
+                    <Grid ColumnDefinitions="*,200">
+                        <StackLayout Grid.Column="0" VerticalOptions="Center">
+                            <Label Text="Cameras" />
+                            <Label Text="{Binding CameraRefreshInterval, StringFormat='{0} seconds'}" 
+                                   FontSize="12" 
+                                   TextColor="Gray" />
+                        </StackLayout>
+                        <Picker Grid.Column="1" 
+                                ItemsSource="{Binding RefreshIntervalOptions}"
+                                SelectedItem="{Binding CameraRefreshInterval}" />
+                    </Grid>
+                    
+                    <!-- Printer Refresh -->
+                    <Grid ColumnDefinitions="*,200">
+                        <StackLayout Grid.Column="0" VerticalOptions="Center">
+                            <Label Text="Printers" />
+                            <Label Text="{Binding PrinterRefreshInterval, StringFormat='{0} seconds'}" 
+                                   FontSize="12" 
+                                   TextColor="Gray" />
+                        </StackLayout>
+                        <Picker Grid.Column="1" 
+                                ItemsSource="{Binding RefreshIntervalOptions}"
+                                SelectedItem="{Binding PrinterRefreshInterval}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+            
+            <!-- SolarWinds Integration Section -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2B2B2B}" 
+                   Padding="15" 
+                   CornerRadius="10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="🌐 SolarWinds Integration" 
+                           FontSize="18" 
+                           FontAttributes="Bold" />
+                    
+                    <Label Text="Configure SolarWinds Orion server credentials for real-time device status monitoring" 
+                           FontSize="12" 
+                           TextColor="Gray" />
+                    
+                    <!-- Status Indicator -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" 
+                               Text="Connection Status" 
+                               VerticalOptions="Center" />
+                        <Label Grid.Column="1" 
+                               Text="{Binding SolarWindsCredentialsConfigured, Converter={StaticResource BoolToTextConverter}, ConverterParameter='✅ Configured|❌ Not Configured'}" 
+                               VerticalOptions="Center"
+                               FontAttributes="Bold" />
+                    </Grid>
+                    
+                    <!-- Hostname -->
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Grid.Column="0" 
+                               Text="Hostname:" 
+                               VerticalOptions="Center" />
+                        <Entry Grid.Column="1" 
+                               Text="{Binding SolarWindsHostname}"
+                               Placeholder="e.g., 10.139.2.129 or solarwinds.company.com" />
+                    </Grid>
+                    
+                    <!-- Port -->
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Grid.Column="0" 
+                               Text="Port:" 
+                               VerticalOptions="Center" />
+                        <Entry Grid.Column="1" 
+                               Text="{Binding SolarWindsPort}"
+                               Placeholder="17778"
+                               Keyboard="Numeric" />
+                    </Grid>
+                    
+                    <!-- Username -->
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Grid.Column="0" 
+                               Text="Username:" 
+                               VerticalOptions="Center" />
+                        <Entry Grid.Column="1" 
+                               Text="{Binding SolarWindsUsername}"
+                               Placeholder="Your SolarWinds username" />
+                    </Grid>
+                    
+                    <!-- Password -->
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Grid.Column="0" 
+                               Text="Password:" 
+                               VerticalOptions="Center" />
+                        <Entry Grid.Column="1" 
+                               Text="{Binding SolarWindsPassword}"
+                               Placeholder="Your SolarWinds password"
+                               IsPassword="True" />
+                    </Grid>
+                    
+                    <!-- Action Buttons -->
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" 
+                                Text="💾 Save" 
+                                Command="{Binding SaveSolarWindsCredentialsCommand}"
+                                BackgroundColor="{StaticResource Primary}"
+                                TextColor="White"
+                                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+                        
+                        <Button Grid.Column="1" 
+                                Text="🔗 Test" 
+                                Command="{Binding TestSolarWindsConnectionCommand}"
+                                BackgroundColor="{StaticResource Secondary}"
+                                TextColor="White"
+                                IsVisible="{Binding SolarWindsCredentialsConfigured}"
+                                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+                        
+                        <Button Grid.Column="2" 
+                                Text="🗑️ Clear" 
+                                Command="{Binding ClearSolarWindsCredentialsCommand}"
+                                BackgroundColor="Red"
+                                TextColor="White"
+                                IsVisible="{Binding SolarWindsCredentialsConfigured}"
+                                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+            
+            <!-- SQL Database Section -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2B2B2B}" 
+                   Padding="15" 
+                   CornerRadius="10"
+                   IsVisible="{Binding ShowDatabaseConfiguration}">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="🗄️ SQL Database Connection" 
+                           FontSize="18" 
+                           FontAttributes="Bold" />
+                    
+                    <Label Text="Configure SQL Server connection for device data management" 
+                           FontSize="12" 
+                           TextColor="Gray" />
+                    
+                    <!-- Status Indicator -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" 
+                               Text="Connection Status" 
+                               VerticalOptions="Center" />
+                        <Label Grid.Column="1" 
+                               Text="{Binding DatabaseCredentialsConfigured, Converter={StaticResource BoolToTextConverter}, ConverterParameter='✅ Configured|❌ Not Configured'}" 
+                               VerticalOptions="Center"
+                               FontAttributes="Bold" />
+                    </Grid>
+                    
+                    <!-- Server Name -->
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Grid.Column="0" 
+                               Text="Server:" 
+                               VerticalOptions="Center" />
+                        <Entry Grid.Column="1" 
+                               Text="{Binding DatabaseServer}"
+                               Placeholder="e.g., localhost\\SQLEXPRESS or 192.168.1.100" />
+                    </Grid>
+                    
+                    <!-- Database Name -->
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Grid.Column="0" 
+                               Text="Database:" 
+                               VerticalOptions="Center" />
+                        <Entry Grid.Column="1" 
+                               Text="{Binding DatabaseName}"
+                               Placeholder="Database name" />
+                    </Grid>
+                    
+                    <!-- Authentication Type -->
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Grid.Column="0" 
+                               Text="Auth Type:" 
+                               VerticalOptions="Center" />
+                        <Picker Grid.Column="1" 
+                                ItemsSource="{Binding AuthenticationTypes}"
+                                SelectedItem="{Binding SelectedAuthenticationType}" />
+                    </Grid>
+                    
+                    <!-- Username (only visible for SQL Authentication) -->
+                    <Grid ColumnDefinitions="120,*" IsVisible="{Binding IsSqlAuthentication}">
+                        <Label Grid.Column="0" 
+                               Text="Username:" 
+                               VerticalOptions="Center" />
+                        <Entry Grid.Column="1" 
+                               Text="{Binding DatabaseUsername}"
+                               Placeholder="SQL Server username" />
+                    </Grid>
+                    
+                    <!-- Password (only visible for SQL Authentication) -->
+                    <Grid ColumnDefinitions="120,*" IsVisible="{Binding IsSqlAuthentication}">
+                        <Label Grid.Column="0" 
+                               Text="Password:" 
+                               VerticalOptions="Center" />
+                        <Entry Grid.Column="1" 
+                               Text="{Binding DatabasePassword}"
+                               Placeholder="SQL Server password"
+                               IsPassword="True" />
+                    </Grid>
+                    
+                    <!-- Connection Timeout -->
+                    <Grid ColumnDefinitions="120,*">
+                        <Label Grid.Column="0" 
+                               Text="Timeout:" 
+                               VerticalOptions="Center" />
+                        <Picker Grid.Column="1" 
+                                ItemsSource="{Binding TimeoutOptions}"
+                                SelectedItem="{Binding ConnectionTimeout}" />
+                    </Grid>
+                    
+                    <!-- Action Buttons -->
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" 
+                                Text="💾 Save" 
+                                Command="{Binding SaveDatabaseCredentialsCommand}"
+                                BackgroundColor="{StaticResource Primary}"
+                                TextColor="White"
+                                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+                        
+                        <Button Grid.Column="1" 
+                                Text="🔗 Test" 
+                                Command="{Binding TestDatabaseConnectionCommand}"
+                                BackgroundColor="{StaticResource Secondary}"
+                                TextColor="White"
+                                IsVisible="{Binding DatabaseCredentialsConfigured}"
+                                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+                        
+                        <Button Grid.Column="2" 
+                                Text="🗑️ Clear" 
+                                Command="{Binding ClearDatabaseCredentialsCommand}"
+                                BackgroundColor="Red"
+                                TextColor="White"
+                                IsVisible="{Binding DatabaseCredentialsConfigured}"
+                                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+            
+            <!-- Domain Configuration Section -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2B2B2B}" 
+                   Padding="15" 
+                   CornerRadius="10"
+                   IsVisible="{Binding ShowDomainConfiguration}">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="🏢 Domain Configuration" 
+                           FontSize="18" 
+                           FontAttributes="Bold" />
+                    
+                    <Label Text="Configure Active Directory domain settings for user authentication and authorization" 
+                           FontSize="12" 
+                           TextColor="Gray" />
+                    
+                    <!-- Domain Name -->
+                    <Grid ColumnDefinitions="*,300">
+                        <Label Grid.Column="0" 
+                               Text="Domain Name" 
+                               VerticalOptions="Center" />
+                        <Entry Grid.Column="1" 
+                               Text="{Binding DomainName}"
+                               Placeholder="Enter domain name (e.g., COMPANY.LOCAL)"
+                               IsEnabled="{Binding CanEditDomainConfiguration}" />
+                    </Grid>
+                    
+                    <!-- Domain Configuration Actions -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" 
+                                Text="💾 Save Domain Config"
+                                Command="{Binding SaveDomainConfigurationCommand}"
+                                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+                        <Button Grid.Column="1" 
+                                Text="🔌 Test Domain Connection"
+                                Command="{Binding TestDomainConnectionCommand}"
+                                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+            
+            <!-- Notifications Section -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2B2B2B}" 
+                   Padding="15" 
+                   CornerRadius="10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="🔔 Notifications" 
+                           FontSize="18" 
+                           FontAttributes="Bold" />
+                    
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0"
+                            Text="Enable Notifications" 
+                            VerticalOptions="Center" />
+                        <Switch Grid.Column="1"
+                            IsToggled="{Binding NotificationsEnabled}" 
+                            IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+            
+            <BoxView HeightRequest="1" Color="{StaticResource Gray300}" />
+            
+            <!-- About Section -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2B2B2B}" 
+                   Padding="15" 
+                   CornerRadius="10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="ℹ️ About" 
+                           FontSize="18" 
+                           FontAttributes="Bold" />
+                    
+                    <!-- App Logo/Icon Section -->
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                        <Border Grid.Column="0"
+                                WidthRequest="60"
+                                HeightRequest="60"
+                                StrokeThickness="2"
+                                Stroke="{StaticResource Primary}"
+                                BackgroundColor="{StaticResource Primary}">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Label Text="🖥️"
+                                   FontSize="32"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   TextColor="White" />
+                        </Border>
+                        
+                        <StackLayout Grid.Column="1" VerticalOptions="Center">
+                            <Label Text="IT Support Framework"
+                                   FontSize="20"
+                                   FontAttributes="Bold" />
+                            <Label Text="{Binding AppVersion, StringFormat='Version {0}'}"
+                                   FontSize="14"
+                                   TextColor="Gray" />
+                            <Label Text="{Binding BuildDate, StringFormat='Build: {0}'}"
+                                   FontSize="11"
+                                   TextColor="Gray" />
+                            <Label Text="Enterprise Device Management"
+                                   FontSize="12"
+                                   TextColor="Gray" />
+                        </StackLayout>
+                    </Grid>
+                    
+                    <!-- App Description -->
+                    <Label Text="A comprehensive .NET MAUI application for IT device management, network monitoring, and database administration with enterprise-level security features."
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light=#333333, Dark=#CCCCCC}"
+                           LineBreakMode="WordWrap" />
+                    
+                    <!-- Developer Credit -->
+                    <Frame BackgroundColor="{AppThemeBinding Light=#E3F2FD, Dark=#1A237E}"
+                           Padding="12"
+                           CornerRadius="8"
+                           HasShadow="False"
+                           BorderColor="{StaticResource Primary}">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="👨‍💻 Developer"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource Primary}" />
+                            <Label Text="{Binding DeveloperName, StringFormat='Developed by {0}'}"
+                                   FontSize="14"
+                                   FontAttributes="Bold" />
+                            <Label Text="IT Shop Floor Lineside Technician"
+                                   FontSize="12"
+                                   TextColor="Gray" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    
+                    <!-- Technical Stack -->
+                    <StackLayout Spacing="8">
+                        <Label Text="🔧 Built With"
+                               FontSize="16"
+                               FontAttributes="Bold" />
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="5">
+                            <Label Grid.Row="0" Grid.Column="0" Text="• .NET 8.0 MAUI" FontSize="12" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="• C# 12.0" FontSize="12" />
+                            <Label Grid.Row="1" Grid.Column="0" Text="• SQL Server 2019+" FontSize="12" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="• MVVM Architecture" FontSize="12" />
+                            <Label Grid.Row="2" Grid.Column="0" Text="• Enterprise Security" FontSize="12" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="• Cross-Platform" FontSize="12" />
+                        </Grid>
+                    </StackLayout>
+                    
+                    <!-- Features Highlight -->
+                    <StackLayout Spacing="8">
+                        <Label Text="✨ Key Features"
+                               FontSize="16"
+                               FontAttributes="Bold" />
+                        <Label Text="• Multi-device management (Printers, Cameras, NetOp devices)"
+                               FontSize="12" />
+                        <Label Text="• Real-time database synchronization with transaction safety"
+                               FontSize="12" />
+                        <Label Text="• Advanced SQL injection prevention and input sanitization"
+                               FontSize="12" />
+                        <Label Text="• Comprehensive device information with 25+ fields"
+                               FontSize="12" />
+                        <Label Text="• Modern, responsive UI with dark/light theme support"
+                               FontSize="12" />
+                    </StackLayout>
+                    
+                    <!-- About Details Button -->
+                    <Button Text="📋 Show Detailed Information"
+                            Command="{Binding ShowAboutDetailsCommand}"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="White"
+                            CornerRadius="8"
+                            Margin="0,10,0,0" />
+                    
+                    <!-- Copyright -->
+                    <BoxView HeightRequest="1" Color="{StaticResource Gray300}" />
+                    <Label Text="{Binding DeveloperName, StringFormat='© 2025 {0}. All rights reserved.'}"
+                           FontSize="11"
+                           TextColor="Gray"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Frame>
+            
+            <BoxView HeightRequest="1" Color="{StaticResource Gray300}" />
+            
+            <!-- Danger Zone -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFF5F5, Dark=#4A1F1F}" 
+                   Padding="15" 
+                   CornerRadius="10"
+                   BorderColor="Red">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="⚠️ Danger Zone" 
+                           FontSize="18" 
+                           FontAttributes="Bold"
+                           TextColor="Red"
+                           HorizontalOptions="Center" />
+                    
+                    <Label Text="This action cannot be undone. All your settings will be reset to defaults." 
+                           FontSize="12"
+                           TextColor="Gray"
+                           HorizontalOptions="Center" />
+                    
+                    <Button Text="Clear All Settings" 
+                            Command="{Binding ClearSettingsCommand}"
+                            BackgroundColor="Red"
+                            TextColor="White"
+                            IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+                </VerticalStackLayout>
+            </Frame>
+                
+            <ActivityIndicator 
+                IsVisible="{Binding IsBusy}" 
+                IsRunning="{Binding IsBusy}"
+                Color="{StaticResource Primary}" />
+                
+        </VerticalStackLayout>
+    </ScrollView>
+    
+    </Grid>
+    
+</ContentPage>

@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="MauiApp1.Views.DnsLookupPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:MauiApp1.Controls"
+             xmlns:viewmodels="clr-namespace:MauiApp1.ViewModels"
+             xmlns:models="clr-namespace:MauiApp1.Models"
+             xmlns:converters="clr-namespace:MauiApp1.Converters"
+             x:DataType="viewmodels:DnsLookupViewModel"
+             Title="{Binding Title}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+        
+        <!-- Application Header -->
+        <controls:AppHeader Grid.Row="0" />
+        
+        <!-- Content -->
+        <ScrollView Grid.Row="1">
+            <Grid Padding="20" RowSpacing="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Page Title -->
+                <Label Grid.Row="0"
+                       Text="🔍 DNS Lookup Tool"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light=#333333, Dark=#FFFFFF}"
+                       HorizontalOptions="Center"
+                       Margin="0,0,0,10" />
+
+                <!-- Input Section -->
+                <Frame Grid.Row="1"
+                       BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                       BorderColor="{AppThemeBinding Light=#DDDDDD, Dark=#444444}"
+                       Padding="20"
+                       CornerRadius="12"
+                       HasShadow="True">
+                    
+                    <StackLayout Spacing="15">
+                        
+                        <!-- Lookup Type Toggle -->
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <Label Grid.Column="0"
+                                   Text="{Binding IsReverseLookup, Converter={StaticResource BoolToTextConverter}, ConverterParameter='Reverse Lookup (IP → Hostname)|Forward Lookup (Hostname → IP)'}"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   VerticalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#1976D2, Dark=#42A5F5}" />
+                            
+                            <Button Grid.Column="1"
+                                    Text="🔄 Switch"
+                                    Command="{Binding ToggleLookupTypeCommand}"
+                                    BackgroundColor="{AppThemeBinding Light=#FFC107, Dark=#FF8F00}"
+                                    TextColor="White"
+                                    CornerRadius="15"
+                                    WidthRequest="80"
+                                    HeightRequest="35"
+                                    FontSize="12" />
+                        </Grid>
+                        
+                        <!-- Query Input -->
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                            <Entry Grid.Column="0"
+                                   x:Name="QueryEntry"
+                                   Text="{Binding QueryInput}"
+                                   Placeholder="{Binding IsReverseLookup, Converter={StaticResource BoolToTextConverter}, ConverterParameter='Enter IP address (e.g., 8.8.8.8)|Enter hostname (e.g., google.com)'}"
+                                   ReturnType="Done"
+                                   ReturnCommand="{Binding PerformLookupCommand}"
+                                   BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2D2D2D}"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                                   IsEnabled="{Binding IsRunning, Converter={StaticResource InvertedBoolConverter}}" />
+                            
+                            <Button Grid.Column="1"
+                                    Text="🔍 Lookup"
+                                    Command="{Binding PerformLookupCommand}"
+                                    BackgroundColor="{AppThemeBinding Light=#4CAF50, Dark=#388E3C}"
+                                    TextColor="White"
+                                    CornerRadius="8"
+                                    WidthRequest="100"
+                                    IsEnabled="{Binding IsRunning, Converter={StaticResource InvertedBoolConverter}}" />
+                            
+                            <Button Grid.Column="2"
+                                    Text="🗑️ Clear"
+                                    Command="{Binding ClearResultsCommand}"
+                                    BackgroundColor="{AppThemeBinding Light=#F44336, Dark=#D32F2F}"
+                                    TextColor="White"
+                                    CornerRadius="8"
+                                    WidthRequest="80"
+                                    IsVisible="{Binding HasResults}" />
+                        </Grid>
+                        
+                        <!-- Status Section -->
+                        <StackLayout Orientation="Horizontal" Spacing="10" IsVisible="{Binding IsRunning}">
+                            <ActivityIndicator IsRunning="{Binding IsRunning}"
+                                               Color="{AppThemeBinding Light=#1976D2, Dark=#42A5F5}"
+                                               WidthRequest="20"
+                                               HeightRequest="20" />
+                            <Label Text="{Binding StatusMessage}"
+                                   FontSize="14"
+                                   VerticalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#1976D2, Dark=#42A5F5}" />
+                        </StackLayout>
+                        
+                        <Label Text="{Binding StatusMessage}"
+                               FontSize="14"
+                               IsVisible="{Binding IsRunning, Converter={StaticResource InvertedBoolConverter}}"
+                               TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                    </StackLayout>
+                </Frame>
+
+                <!-- Help Section -->
+                <Frame Grid.Row="2"
+                       BackgroundColor="{AppThemeBinding Light=#F9F9F9, Dark=#2D2D2D}"
+                       BorderColor="{AppThemeBinding Light=#EEEEEE, Dark=#555555}"
+                       Padding="15"
+                       CornerRadius="8"
+                       HasShadow="False">
+                    <StackLayout Spacing="8">
+                        <Label Text="💡 Quick Tips"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#FF9800, Dark=#FFB74D}" />
+                        <Label Text="• Forward Lookup: Enter a hostname (e.g., google.com, microsoft.com)"
+                               FontSize="12"
+                               TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                        <Label Text="• Reverse Lookup: Enter an IP address (e.g., 8.8.8.8, 1.1.1.1)"
+                               FontSize="12"
+                               TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                        <Label Text="• Use the Switch button to toggle between lookup types"
+                               FontSize="12"
+                               TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                    </StackLayout>
+                </Frame>
+
+                <!-- Results Section -->
+                <StackLayout Grid.Row="3" Spacing="10" IsVisible="{Binding HasResults}">
+                    
+                    <Label Text="📋 DNS Lookup Results"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light=#333333, Dark=#FFFFFF}"
+                           Margin="0,10,0,5" />
+                    
+                    <CollectionView ItemsSource="{Binding Results}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:DnsResult">
+                                <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                                       BorderColor="{AppThemeBinding Light=#DDDDDD, Dark=#444444}"
+                                       Padding="15"
+                                       CornerRadius="8"
+                                       HasShadow="True"
+                                       Margin="0,5">
+                                    
+                                    <StackLayout Spacing="10">
+                                        
+                                        <!-- Header -->
+                                        <Grid ColumnDefinitions="*,Auto,Auto">
+                                            <StackLayout Grid.Column="0" Orientation="Horizontal" Spacing="10">
+                                                <Label Text="{Binding QueryType}"
+                                                       FontSize="16"
+                                                       FontAttributes="Bold"
+                                                       VerticalOptions="Center"
+                                                       TextColor="{AppThemeBinding Light=#1976D2, Dark=#42A5F5}" />
+                                                <Frame BackgroundColor="{Binding StatusColor}"
+                                                       Padding="5,2"
+                                                       CornerRadius="10"
+                                                       HasShadow="False">
+                                                    <Label Text="{Binding Status}"
+                                                           FontSize="12"
+                                                           FontAttributes="Bold"
+                                                           TextColor="White" />
+                                                </Frame>
+                                            </StackLayout>
+                                            
+                                            <Label Grid.Column="2"
+                                                   Text="{Binding FormattedTimestamp}"
+                                                   FontSize="12"
+                                                   FontFamily="Consolas"
+                                                   VerticalOptions="Center"
+                                                   TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                        </Grid>
+                                        
+                                        <!-- Query Information -->
+                                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="5" ColumnSpacing="10">
+                                            <Label Grid.Row="0" Grid.Column="0" Text="Query:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Query}" FontFamily="Consolas" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                                            
+                                            <Label Grid.Row="1" Grid.Column="0" Text="Hostname:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" IsVisible="{Binding IsSuccess}" />
+                                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding HostName}" FontFamily="Consolas" TextColor="{AppThemeBinding Light=#4CAF50, Dark=#81C784}" IsVisible="{Binding IsSuccess}" />
+                                            
+                                            <Label Grid.Row="2" Grid.Column="0" Text="Error:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" IsVisible="{Binding IsSuccess, Converter={StaticResource InvertedBoolConverter}}" />
+                                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding ErrorMessage}" FontFamily="Consolas" TextColor="{AppThemeBinding Light=#F44336, Dark=#EF5350}" IsVisible="{Binding IsSuccess, Converter={StaticResource InvertedBoolConverter}}" />
+                                        </Grid>
+                                        
+                                        <!-- IP Addresses -->
+                                        <StackLayout IsVisible="{Binding IsSuccess}" Spacing="5">
+                                            <Label Text="IP Addresses:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                            <CollectionView ItemsSource="{Binding IpAddresses}">
+                                                <CollectionView.ItemTemplate>
+                                                    <DataTemplate x:DataType="models:IpAddressInfo">
+                                                        <Grid Padding="10,5" ColumnDefinitions="Auto,*">
+                                                            <Label Grid.Column="0" Text="🌐" FontSize="14" VerticalOptions="Center" />
+                                                            <Label Grid.Column="1" Text="{Binding DisplayText}" FontFamily="Consolas" VerticalOptions="Center" TextColor="{AppThemeBinding Light=#1976D2, Dark=#42A5F5}" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </CollectionView.ItemTemplate>
+                                            </CollectionView>
+                                        </StackLayout>
+                                        
+                                        <!-- Aliases -->
+                                        <StackLayout IsVisible="{Binding HasAliases}" Spacing="5">
+                                            <Label Text="Aliases:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                            <CollectionView ItemsSource="{Binding Aliases}">
+                                                <CollectionView.ItemTemplate>
+                                                    <DataTemplate x:DataType="x:String">
+                                                        <Grid Padding="10,5" ColumnDefinitions="Auto,*">
+                                                            <Label Grid.Column="0" Text="🔗" FontSize="14" VerticalOptions="Center" />
+                                                            <Label Grid.Column="1" Text="{Binding .}" FontFamily="Consolas" VerticalOptions="Center" TextColor="{AppThemeBinding Light=#FF9800, Dark=#FFB74D}" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </CollectionView.ItemTemplate>
+                                            </CollectionView>
+                                        </StackLayout>
+                                        
+                                    </StackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+
+                <!-- Empty State -->
+                <Frame Grid.Row="3" 
+                       BackgroundColor="{AppThemeBinding Light=#F9F9F9, Dark=#2D2D2D}"
+                       BorderColor="{AppThemeBinding Light=#EEEEEE, Dark=#555555}"
+                       Padding="30"
+                       CornerRadius="8"
+                       HasShadow="False"
+                       IsVisible="{Binding HasResults, Converter={StaticResource InvertedBoolConverter}}">
+                    <StackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="🔍" FontSize="48" HorizontalOptions="Center" />
+                        <Label Text="No DNS lookups performed yet" 
+                               FontSize="18" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                        <Label Text="Enter a hostname or IP address above to start DNS resolution" 
+                               FontSize="14"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light=#999999, Dark=#AAAAAA}" />
+                    </StackLayout>
+                </Frame>
+
+            </Grid>
+        </ScrollView>
+    </Grid>
+
+</ContentPage>

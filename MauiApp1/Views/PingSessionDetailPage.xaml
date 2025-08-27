@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="MauiApp1.Views.PingSessionDetailPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:MauiApp1.Controls"
+             xmlns:viewmodels="clr-namespace:MauiApp1.ViewModels"
+             xmlns:models="clr-namespace:MauiApp1.Models"
+             xmlns:converters="clr-namespace:MauiApp1.Converters"
+             x:DataType="viewmodels:PingSessionDetailViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{StaticResource PageBackgroundBrush}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+        
+        <!-- Application Header -->
+        <controls:AppHeader Grid.Row="0" />
+        
+        <!-- Content -->
+        <ScrollView Grid.Row="1" IsVisible="{Binding HasSession}">
+            <Grid Padding="20" RowSpacing="15">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Navigation and Title Section -->
+                <StackLayout Grid.Row="0" Orientation="Horizontal" Spacing="15" Margin="0,0,0,10">
+                    <controls:BackButton BackText="← Back to Dashboard"
+                                        BackRoute="MultiPingDashboardPage" />
+                    
+                    <Label Text="{Binding Session.Target, StringFormat='Ping Session - {0}'}"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#333333, Dark=#FFFFFF}"
+                           HorizontalOptions="Fill" />
+                </StackLayout>
+
+                <!-- Session Info -->
+                <StackLayout Grid.Row="1" Orientation="Horizontal" Spacing="15" HorizontalOptions="Center">
+                    <Frame BackgroundColor="{AppThemeBinding Light=#E3F2FD, Dark=#1565C0}"
+                           Padding="8,4"
+                           CornerRadius="12"
+                           HasShadow="False">
+                        <Label Text="{Binding Session.Status}" 
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#1976D2, Dark=#FFFFFF}" />
+                    </Frame>
+                    <Frame BackgroundColor="{AppThemeBinding Light=#FFF3E0, Dark=#FF8F00}"
+                           Padding="8,4"
+                           CornerRadius="12"
+                           HasShadow="False">
+                        <Label Text="{Binding Session.PingCountDisplay}" 
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#FF8F00, Dark=#FFFFFF}" />
+                    </Frame>
+                </StackLayout>
+
+                <!-- Control Section -->
+                <Frame Grid.Row="2" 
+                       BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2B2B2B}"
+                       BorderColor="{AppThemeBinding Light=#DDDDDD, Dark=#444444}"
+                       Padding="15"
+                       CornerRadius="8">
+                    <StackLayout Spacing="15">
+                        
+                        <!-- Session Info Display -->
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <StackLayout Grid.Column="0" Spacing="10">
+                                <Label Text="Target Host:" 
+                                       FontAttributes="Bold"
+                                       FontSize="16"
+                                       TextColor="{AppThemeBinding Light=#333333, Dark=#FFFFFF}" />
+                                <Label Text="{Binding Session.Target}"
+                                       FontSize="16"
+                                       FontFamily="Consolas"
+                                       BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                                       Padding="10"
+                                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                            </StackLayout>
+                            
+                            <StackLayout Grid.Column="1" Spacing="10">
+                                <Label Text="Ping Count:" 
+                                       FontAttributes="Bold"
+                                       FontSize="16"
+                                       TextColor="{AppThemeBinding Light=#333333, Dark=#FFFFFF}" />
+                                <Label Text="{Binding Session.PingCountDisplay}"
+                                       FontSize="16"
+                                       FontFamily="Consolas"
+                                       BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                                       Padding="10"
+                                       HorizontalOptions="Center"
+                                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                            </StackLayout>
+                        </Grid>
+                        
+                        <!-- Action Buttons -->
+                        <StackLayout Orientation="Horizontal" 
+                                     HorizontalOptions="Center"
+                                     Spacing="15">
+                            <Button Text="▶️ Start Session"
+                                    Command="{Binding StartSessionCommand}"
+                                    IsVisible="{Binding Session.IsRunning, Converter={StaticResource InvertedBoolConverter}}"
+                                    BackgroundColor="{AppThemeBinding Light=#4CAF50, Dark=#388E3C}"
+                                    TextColor="White"
+                                    WidthRequest="140"
+                                    HeightRequest="45"
+                                    CornerRadius="8"
+                                    FontAttributes="Bold" />
+                            <Button Text="⏹️ Stop Session"
+                                    Command="{Binding StopSessionCommand}"
+                                    IsVisible="{Binding Session.IsRunning}"
+                                    BackgroundColor="{AppThemeBinding Light=#FF9800, Dark=#F57C00}"
+                                    TextColor="White"
+                                    WidthRequest="140"
+                                    HeightRequest="45"
+                                    CornerRadius="8"
+                                    FontAttributes="Bold" />
+                            <Button Text="🗑️ Remove"
+                                    Command="{Binding RemoveSessionCommand}"
+                                    BackgroundColor="{AppThemeBinding Light=#F44336, Dark=#D32F2F}"
+                                    TextColor="White"
+                                    WidthRequest="120"
+                                    HeightRequest="45"
+                                    CornerRadius="8"
+                                    FontAttributes="Bold" />
+                        </StackLayout>
+
+                        <!-- Status Message -->
+                        <StackLayout Orientation="Horizontal" Spacing="10" IsVisible="{Binding Session.IsRunning}" HorizontalOptions="Center">
+                            <ActivityIndicator IsRunning="{Binding Session.IsRunning}"
+                                               Color="{AppThemeBinding Light=#1976D2, Dark=#42A5F5}"
+                                               WidthRequest="20"
+                                               HeightRequest="20" />
+                            <Label Text="{Binding Session.StatusMessage}"
+                                   FontSize="14"
+                                   VerticalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#1976D2, Dark=#42A5F5}" />
+                        </StackLayout>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Results Section -->
+                <Grid Grid.Row="3" 
+                      ColumnDefinitions="2*,*" 
+                      ColumnSpacing="15"
+                      Margin="0,10,0,0">
+                    
+                    <!-- Left Side - Ping Results -->
+                    <Frame Grid.Column="0"
+                           BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                           BorderColor="{AppThemeBinding Light=#DDDDDD, Dark=#444444}"
+                           Padding="15"
+                           CornerRadius="8"
+                           HasShadow="True">
+                        <StackLayout Spacing="10">
+                            <Label Text="📊 Live Ping Results" 
+                                   FontSize="18" 
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#333333, Dark=#FFFFFF}" />
+                            
+                            <ScrollView MaximumHeightRequest="400">
+                                <CollectionView ItemsSource="{Binding Session.Results}"
+                                               SelectionMode="None">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="models:PingResult">
+                                            <Grid ColumnDefinitions="Auto,*,Auto,Auto" 
+                                                  ColumnSpacing="10" 
+                                                  Padding="5,3"
+                                                  BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#2A2A2A}">
+                                                <Label Grid.Column="0" 
+                                                       Text="{Binding PingNumber, StringFormat='#{0}'}" 
+                                                       FontFamily="Consolas"
+                                                       FontSize="12"
+                                                       TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}"
+                                                       VerticalOptions="Center" />
+                                                <Label Grid.Column="1" 
+                                                       Text="{Binding Status}" 
+                                                       FontFamily="Consolas"
+                                                       FontSize="12"
+                                                       TextColor="{Binding StatusColor}"
+                                                       VerticalOptions="Center" />
+                                                <Label Grid.Column="2" 
+                                                       Text="{Binding Time}" 
+                                                       FontFamily="Consolas"
+                                                       FontSize="12"
+                                                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                                                       VerticalOptions="Center" />
+                                                <Label Grid.Column="3" 
+                                                       Text="{Binding Timestamp, StringFormat='{0:HH:mm:ss}'}" 
+                                                       FontFamily="Consolas"
+                                                       FontSize="11"
+                                                       TextColor="{AppThemeBinding Light=#999999, Dark=#666666}"
+                                                       VerticalOptions="Center" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </ScrollView>
+                        </StackLayout>
+                    </Frame>
+                    
+                    <!-- Right Side - Statistics -->
+                    <StackLayout Grid.Column="1" Spacing="15">
+                        
+                        <!-- Live Stats -->
+                        <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                               BorderColor="{AppThemeBinding Light=#DDDDDD, Dark=#444444}"
+                               Padding="15"
+                               CornerRadius="8"
+                               HasShadow="True">
+                            <StackLayout Spacing="10">
+                                <Label Text="📈 Live Statistics" 
+                                       FontSize="16" 
+                                       FontAttributes="Bold"
+                                       TextColor="{AppThemeBinding Light=#333333, Dark=#FFFFFF}" />
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="5" ColumnSpacing="10">
+                                    <Label Grid.Row="0" Grid.Column="0" Text="Sent:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding Session.PacketsSent}" FontFamily="Consolas" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                                    <Label Grid.Row="1" Grid.Column="0" Text="Received:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding Session.PacketsReceived}" FontFamily="Consolas" TextColor="{AppThemeBinding Light=#4CAF50, Dark=#81C784}" />
+                                    <Label Grid.Row="2" Grid.Column="0" Text="Lost:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Session.PacketsLost}" FontFamily="Consolas" TextColor="{AppThemeBinding Light=#F44336, Dark=#EF5350}" />
+                                    <Label Grid.Row="3" Grid.Column="0" Text="Loss %:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                    <Label Grid.Row="3" Grid.Column="1" Text="{Binding Session.LossPercentage, StringFormat='{0:F1}%'}" FontFamily="Consolas" TextColor="{AppThemeBinding Light=#FF9800, Dark=#FFB74D}" />
+                                    <Label Grid.Row="4" Grid.Column="0" Text="Status:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                    <Label Grid.Row="4" Grid.Column="1" Text="{Binding Session.Status}" FontSize="12" TextColor="{AppThemeBinding Light=#1976D2, Dark=#42A5F5}" />
+                                </Grid>
+                            </StackLayout>
+                        </Frame>
+                        
+                        <!-- Response Time Stats -->
+                        <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                               BorderColor="{AppThemeBinding Light=#DDDDDD, Dark=#444444}"
+                               Padding="15"
+                               CornerRadius="8"
+                               HasShadow="True"
+                               IsVisible="{Binding Session.HasResponseTimes}">
+                            <StackLayout Spacing="10">
+                                <Label Text="⏱️ Response Times" 
+                                       FontSize="16" 
+                                       FontAttributes="Bold"
+                                       TextColor="{AppThemeBinding Light=#333333, Dark=#FFFFFF}" />
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="5" ColumnSpacing="10">
+                                    <Label Grid.Row="0" Grid.Column="0" Text="Min:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding Session.MinResponseTime, StringFormat='{0} ms'}" FontFamily="Consolas" TextColor="{AppThemeBinding Light=#4CAF50, Dark=#81C784}" />
+                                    <Label Grid.Row="1" Grid.Column="0" Text="Max:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding Session.MaxResponseTime, StringFormat='{0} ms'}" FontFamily="Consolas" TextColor="{AppThemeBinding Light=#F44336, Dark=#EF5350}" />
+                                    <Label Grid.Row="2" Grid.Column="0" Text="Avg:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Session.AvgResponseTime, StringFormat='{0:F1} ms'}" FontFamily="Consolas" TextColor="{AppThemeBinding Light=#FF9800, Dark=#FFB74D}" />
+                                </Grid>
+                            </StackLayout>
+                        </Frame>
+                        
+                        <!-- Progress Indicator -->
+                        <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                               BorderColor="{AppThemeBinding Light=#DDDDDD, Dark=#444444}"
+                               Padding="15"
+                               CornerRadius="8"
+                               HasShadow="True"
+                               IsVisible="{Binding Session.IsRunning}">
+                            <StackLayout Spacing="10" HorizontalOptions="Center">
+                                <ActivityIndicator IsRunning="{Binding Session.IsRunning}"
+                                                   Color="{AppThemeBinding Light=#1976D2, Dark=#42A5F5}"
+                                                   WidthRequest="30"
+                                                   HeightRequest="30" />
+                                <Label Text="{Binding Session.StatusMessage}"
+                                       FontSize="12"
+                                       TextColor="{AppThemeBinding Light=#1976D2, Dark=#42A5F5}"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center" />
+                            </StackLayout>
+                        </Frame>
+                        
+                    </StackLayout>
+                </Grid>
+
+            </Grid>
+        </ScrollView>
+
+        <!-- Session Not Found -->
+        <Frame Grid.Row="1" 
+               BackgroundColor="{AppThemeBinding Light=#F9F9F9, Dark=#2D2D2D}"
+               BorderColor="{AppThemeBinding Light=#EEEEEE, Dark=#555555}"
+               Padding="30"
+               CornerRadius="8"
+               HasShadow="False"
+               Margin="20"
+               IsVisible="{Binding HasSession, Converter={StaticResource InvertedBoolConverter}}">
+            <StackLayout Spacing="15" HorizontalOptions="Center">
+                <Label Text="❌" FontSize="48" HorizontalOptions="Center" />
+                <Label Text="Session Not Found" 
+                       FontSize="20" 
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light=#F44336, Dark=#EF5350}" />
+                <Label Text="The requested ping session could not be found or may have been removed." 
+                       FontSize="14"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                <Button Text="⬅️ Go Back"
+                        Command="{Binding GoBackCommand}"
+                        BackgroundColor="{AppThemeBinding Light=#607D8B, Dark=#90A4AE}"
+                        TextColor="White"
+                        CornerRadius="8"
+                        WidthRequest="120"
+                        HeightRequest="40" />
+            </StackLayout>
+        </Frame>
+
+    </Grid>
+
+</ContentPage>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp1.Controls.SevenSegmentDigit"
+             x:Name="DigitControl">
+    
+    <!-- 7-Segment Display Grid - 7 columns x 11 rows of small squares -->
+    <Grid WidthRequest="35" HeightRequest="55" BackgroundColor="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        
+        <!-- Segment A (Top horizontal) - Row 0, Columns 1-5 -->
+        <BoxView x:Name="A1" Grid.Row="0" Grid.Column="1" BackgroundColor="#110000" />
+        <BoxView x:Name="A2" Grid.Row="0" Grid.Column="2" BackgroundColor="#110000" />
+        <BoxView x:Name="A3" Grid.Row="0" Grid.Column="3" BackgroundColor="#110000" />
+        <BoxView x:Name="A4" Grid.Row="0" Grid.Column="4" BackgroundColor="#110000" />
+        <BoxView x:Name="A5" Grid.Row="0" Grid.Column="5" BackgroundColor="#110000" />
+        
+        <!-- Segment B (Top right vertical) - Column 6, Rows 1-4 -->
+        <BoxView x:Name="B1" Grid.Row="1" Grid.Column="6" BackgroundColor="#110000" />
+        <BoxView x:Name="B2" Grid.Row="2" Grid.Column="6" BackgroundColor="#110000" />
+        <BoxView x:Name="B3" Grid.Row="3" Grid.Column="6" BackgroundColor="#110000" />
+        <BoxView x:Name="B4" Grid.Row="4" Grid.Column="6" BackgroundColor="#110000" />
+        
+        <!-- Segment C (Bottom right vertical) - Column 6, Rows 6-9 -->
+        <BoxView x:Name="C1" Grid.Row="6" Grid.Column="6" BackgroundColor="#110000" />
+        <BoxView x:Name="C2" Grid.Row="7" Grid.Column="6" BackgroundColor="#110000" />
+        <BoxView x:Name="C3" Grid.Row="8" Grid.Column="6" BackgroundColor="#110000" />
+        <BoxView x:Name="C4" Grid.Row="9" Grid.Column="6" BackgroundColor="#110000" />
+        
+        <!-- Segment D (Bottom horizontal) - Row 10, Columns 1-5 -->
+        <BoxView x:Name="D1" Grid.Row="10" Grid.Column="1" BackgroundColor="#110000" />
+        <BoxView x:Name="D2" Grid.Row="10" Grid.Column="2" BackgroundColor="#110000" />
+        <BoxView x:Name="D3" Grid.Row="10" Grid.Column="3" BackgroundColor="#110000" />
+        <BoxView x:Name="D4" Grid.Row="10" Grid.Column="4" BackgroundColor="#110000" />
+        <BoxView x:Name="D5" Grid.Row="10" Grid.Column="5" BackgroundColor="#110000" />
+        
+        <!-- Segment E (Bottom left vertical) - Column 0, Rows 6-9 -->
+        <BoxView x:Name="E1" Grid.Row="6" Grid.Column="0" BackgroundColor="#110000" />
+        <BoxView x:Name="E2" Grid.Row="7" Grid.Column="0" BackgroundColor="#110000" />
+        <BoxView x:Name="E3" Grid.Row="8" Grid.Column="0" BackgroundColor="#110000" />
+        <BoxView x:Name="E4" Grid.Row="9" Grid.Column="0" BackgroundColor="#110000" />
+        
+        <!-- Segment F (Top left vertical) - Column 0, Rows 1-4 -->
+        <BoxView x:Name="F1" Grid.Row="1" Grid.Column="0" BackgroundColor="#110000" />
+        <BoxView x:Name="F2" Grid.Row="2" Grid.Column="0" BackgroundColor="#110000" />
+        <BoxView x:Name="F3" Grid.Row="3" Grid.Column="0" BackgroundColor="#110000" />
+        <BoxView x:Name="F4" Grid.Row="4" Grid.Column="0" BackgroundColor="#110000" />
+        
+        <!-- Segment G (Middle horizontal) - Row 5, Columns 1-5 -->
+        <BoxView x:Name="G1" Grid.Row="5" Grid.Column="1" BackgroundColor="#110000" />
+        <BoxView x:Name="G2" Grid.Row="5" Grid.Column="2" BackgroundColor="#110000" />
+        <BoxView x:Name="G3" Grid.Row="5" Grid.Column="3" BackgroundColor="#110000" />
+        <BoxView x:Name="G4" Grid.Row="5" Grid.Column="4" BackgroundColor="#110000" />
+        <BoxView x:Name="G5" Grid.Row="5" Grid.Column="5" BackgroundColor="#110000" />
+        
+    </Grid>
+    
+</ContentView>

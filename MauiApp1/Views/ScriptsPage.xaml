@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:MauiApp1.Controls"
+             xmlns:converters="clr-namespace:MauiApp1.Converters"
+             x:Class="MauiApp1.Views.ScriptsPage"
+             Title="{Binding Title}"
+             BackgroundColor="{StaticResource PageBackgroundBrush}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:StringToBoolConverter x:Key="StringToBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
+    <Grid RowDefinitions="Auto,*">
+        
+        <!-- Application Header -->
+        <controls:AppHeader Grid.Row="0" />
+        
+        <!-- Content -->
+        <Grid Grid.Row="1" RowDefinitions="Auto,*">
+        
+            <!-- Filter Controls -->
+            <ScrollView Grid.Row="0" Orientation="Horizontal" Padding="10">
+                <StackLayout Orientation="Horizontal" Spacing="10">
+                    
+                    <!-- Category Filter -->
+                    <StackLayout>
+                        <Label Text="Category" FontSize="12" HorizontalOptions="Center" />
+                        <Picker ItemsSource="{Binding AvailableCategories}"
+                                SelectedItem="{Binding SelectedCategory}"
+                                WidthRequest="120" />
+                    </StackLayout>
+                    
+                    <!-- Admin Filter -->
+                    <StackLayout>
+                        <Label Text="Admin Required" FontSize="12" HorizontalOptions="Center" />
+                        <Picker ItemsSource="{Binding AdminRequiredOptions}"
+                                SelectedItem="{Binding SelectedAdminFilter}"
+                                WidthRequest="100" />
+                    </StackLayout>
+                    
+                    <!-- Action Buttons -->
+                    <StackLayout Orientation="Horizontal" Spacing="5" VerticalOptions="End">
+                        <Button Text="🔄 Refresh" 
+                                Command="{Binding LoadScriptsCommand}"
+                                FontSize="12" 
+                                Padding="10,5" />
+                        <Button Text="🗑️ Clear" 
+                                Command="{Binding ClearFiltersCommand}"
+                                FontSize="12" 
+                                Padding="10,5" />
+                    </StackLayout>
+                    
+                    <!-- Search Bar -->
+                    <StackLayout Spacing="5" VerticalOptions="End" Margin="10,0,0,0">
+                        <Label Text="Search" FontSize="12" HorizontalOptions="Center" />
+                        <Entry Text="{Binding SearchText}"
+                               Placeholder="Search scripts..."
+                               WidthRequest="200"
+                               FontSize="12" />
+                    </StackLayout>
+                    
+                </StackLayout>
+            </ScrollView>
+            
+            <!-- Main Content -->
+            <Grid Grid.Row="1">
+                <ScrollView Padding="10">
+                    <CollectionView ItemsSource="{Binding FilteredScripts}"
+                                    SelectionMode="None"
+                                    BackgroundColor="Transparent">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame BackgroundColor="{AppThemeBinding Light=White, Dark=#2B2B2B}"
+                                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#404040}"
+                                       CornerRadius="8"
+                                       Padding="15"
+                                       HasShadow="True"
+                                       Margin="0,5">
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ExecuteScriptCommand}"
+                                                              CommandParameter="{Binding}" />
+                                    </Frame.GestureRecognizers>
+                                    
+                                    <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                        
+                                        <!-- Script Icon -->
+                                        <Label Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"
+                                               Text="📜"
+                                               FontSize="32"
+                                               VerticalOptions="Center"
+                                               Margin="0,0,15,0" />
+                                        
+                                        <!-- Script Name -->
+                                        <Label Grid.Row="0" Grid.Column="1"
+                                               Text="{Binding Name}"
+                                               FontSize="16"
+                                               FontAttributes="Bold"
+                                               LineBreakMode="TailTruncation" />
+                                               
+                                        <!-- Admin Badge -->
+                                        <Frame Grid.Row="0" Grid.Column="2"
+                                               IsVisible="{Binding RequiresAdmin}"
+                                               BackgroundColor="{AppThemeBinding Light=#FFE5E5, Dark=#4D1F1F}"
+                                               BorderColor="{AppThemeBinding Light=#FF6B6B, Dark=#FF8080}"
+                                               CornerRadius="12"
+                                               Padding="8,4"
+                                               HasShadow="False"
+                                               VerticalOptions="Start">
+                                            <Label Text="🔒 Admin"
+                                                   FontSize="10"
+                                                   TextColor="{AppThemeBinding Light=#CC0000, Dark=#FF8080}"
+                                                   FontAttributes="Bold" />
+                                        </Frame>
+                                        
+                                        <!-- Script Description -->
+                                        <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+                                               Text="{Binding Description}"
+                                               FontSize="13"
+                                               TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}"
+                                               LineBreakMode="WordWrap"
+                                               Margin="0,5,0,0" />
+                                               
+                                        <!-- Script Category and Metadata -->
+                                        <StackLayout Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
+                                                     Orientation="Horizontal"
+                                                     Spacing="10"
+                                                     Margin="0,8,0,0">
+                                            <Frame BackgroundColor="{AppThemeBinding Light=#F0F8FF, Dark=#1A2332}"
+                                                   BorderColor="{AppThemeBinding Light=#4A90E2, Dark=#5BA3F5}"
+                                                   CornerRadius="10"
+                                                   Padding="6,3"
+                                                   HasShadow="False">
+                                                <Label Text="{Binding Category}"
+                                                       FontSize="10"
+                                                       TextColor="{AppThemeBinding Light=#2C5AA0, Dark=#5BA3F5}"
+                                                       FontAttributes="Bold" />
+                                            </Frame>
+                                            
+                                            <Label Text="{Binding Author, StringFormat='👤 {0}'}"
+                                                   FontSize="11"
+                                                   TextColor="{AppThemeBinding Light=#888888, Dark=#AAAAAA}"
+                                                   VerticalOptions="Center">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding Author}" Value="">
+                                                        <Setter Property="IsVisible" Value="False" />
+                                                    </DataTrigger>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding Author}" Value="{x:Null}">
+                                                        <Setter Property="IsVisible" Value="False" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                            
+                                            <Label Text="{Binding EstimatedDuration, StringFormat='⏱️ {0}'}"
+                                                   FontSize="11"
+                                                   TextColor="{AppThemeBinding Light=#888888, Dark=#AAAAAA}"
+                                                   VerticalOptions="Center" />
+                                        </StackLayout>
+                                    </Grid>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                        
+                        <CollectionView.EmptyView>
+                            <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Padding="50">
+                                <Label Text="📜" FontSize="48" HorizontalOptions="Center" />
+                                <Label Text="No scripts found" 
+                                       FontSize="18" 
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Try adjusting your filters or refresh the list"
+                                       FontSize="14"
+                                       HorizontalOptions="Center"
+                                       TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                <Button Text="Refresh Scripts"
+                                        Command="{Binding LoadScriptsCommand}"
+                                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                                        HorizontalOptions="Center"
+                                        Margin="0,20,0,0" />
+                            </StackLayout>
+                        </CollectionView.EmptyView>
+                    </CollectionView>
+                </ScrollView>
+                
+                <!-- Loading Indicator -->
+                <Frame IsVisible="{Binding IsBusy}"
+                       BackgroundColor="{AppThemeBinding Light=#80FFFFFF, Dark=#80000000}"
+                       HorizontalOptions="Fill"
+                       VerticalOptions="Fill"
+                       BorderColor="Transparent">
+                    <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                           Color="{StaticResource Primary}"
+                                           WidthRequest="50"
+                                           HeightRequest="50" />
+                        <Label Text="Loading scripts..."
+                               FontSize="16"
+                               HorizontalOptions="Center"
+                               Margin="0,10,0,0" />
+                    </StackLayout>
+                </Frame>
+            </Grid>
+            
+        </Grid>
+        
+    </Grid>
+    
+</ContentPage>
