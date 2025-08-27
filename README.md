@@ -5,7 +5,7 @@ A comprehensive .NET MAUI cross-platform application for IT device management, n
 ![.NET MAUI](https://img.shields.io/badge/.NET%20MAUI-8.0-blue)
 ![C#](https://img.shields.io/badge/C%23-12.0-green)
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-2019+-red)
-![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Android%20%7C%20iOS%20%7C%20macOS-lightgrey)
+![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey)
 
 ## 📋 Table of Contents
 
@@ -892,4 +892,5 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 ---
 
 **Navigation**: [Top](#mauiapp1---it-support-framework-application) | [Table of Contents](#-table-of-contents)
+
 
