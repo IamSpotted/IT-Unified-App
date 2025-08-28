@@ -44,6 +44,7 @@ public interface IDatabaseService
     Task<List<DeviceModel>> GetCamerasAsync();
     Task<List<DeviceModel>> GetPrintersAsync();
     Task<List<DeviceModel>> GetNetopsAsync();
+    Task<List<DeviceModel>> GetNetworkDevicesAsync();
     /// <summary>
     /// Gets a device from the database by hostname (returns null if not found)
     /// </summary>

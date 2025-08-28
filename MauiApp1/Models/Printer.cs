@@ -48,6 +48,7 @@ public class Printer : IFilterable
             "Level" => Level ?? string.Empty,
             "Model" => Model ?? string.Empty,
             "Serial Number" => SerialNumber ?? string.Empty,
+            "ipaddress" => PrimaryIp ?? string.Empty,
             _ => string.Empty
         };
     }
