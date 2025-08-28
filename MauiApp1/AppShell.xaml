@@ -52,31 +52,35 @@
     <FlyoutItem Title="🔧 Netops" Route="netops">
         <ShellContent ContentTemplate="{DataTemplate views:NetopsPage}" Shell.NavBarIsVisible="False" />
     </FlyoutItem>
-    
-    <FlyoutItem Title="🌐 Networking" Route="networking">
-        <ShellContent ContentTemplate="{DataTemplate views:NetworkingPage}" Shell.NavBarIsVisible="False" />
+
+    <FlyoutItem Title="🖥️ Routers and Switches" Route="network-devices">
+        <ShellContent ContentTemplate="{DataTemplate views:NetworkDevicesPage}" Shell.NavBarIsVisible="False" />
     </FlyoutItem>
-    
+
     <FlyoutItem Title="🖨️ Printers" Route="printers">
         <ShellContent ContentTemplate="{DataTemplate views:PrintersPage}" Shell.NavBarIsVisible="False" />
     </FlyoutItem>
     
+    <FlyoutItem Title="🌐 Networking" Route="networking">
+        <ShellContent ContentTemplate="{DataTemplate views:NetworkingPage}" Shell.NavBarIsVisible="False" />
+    </FlyoutItem>
+       
     <FlyoutItem Title="📜 Scripts" Route="scripts">
         <ShellContent ContentTemplate="{DataTemplate views:ScriptsPage}" Shell.NavBarIsVisible="False" />
-    </FlyoutItem>
-    
-    <FlyoutItem Title="📚 Documentation" Route="documentation">
-        <ShellContent ContentTemplate="{DataTemplate views:DocumentationPage}" Shell.NavBarIsVisible="False" />
-    </FlyoutItem>
-    
-    <FlyoutItem Title="⚙️ Settings" Route="settings">
-        <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}" Shell.NavBarIsVisible="False" />
     </FlyoutItem>
     
     <FlyoutItem Title="🗄️ Database Admin" 
                 Route="database-admin"
                 IsVisible="{Binding ShowDatabaseAdmin}">
         <ShellContent ContentTemplate="{DataTemplate views:DatabaseAdminPage}" Shell.NavBarIsVisible="False" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="⚙️ Settings" Route="settings">
+        <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}" Shell.NavBarIsVisible="False" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="📚 Documentation" Route="documentation">
+        <ShellContent ContentTemplate="{DataTemplate views:DocumentationPage}" Shell.NavBarIsVisible="False" />
     </FlyoutItem>
 
 </Shell>

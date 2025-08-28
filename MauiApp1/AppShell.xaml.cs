@@ -60,7 +60,8 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute("scripts", typeof(ScriptsPage));
 		Routing.RegisterRoute("settings", typeof(SettingsPage));
 		Routing.RegisterRoute("database-admin", typeof(DatabaseAdminPage));
-		
+		Routing.RegisterRoute("network-devices", typeof(NetworkDevicesPage));
+
 		// Register script-specific pages
 		Routing.RegisterRoute(nameof(ComputerInfoPage), typeof(ComputerInfoPage));
 		Routing.RegisterRoute(nameof(ConnectivityTestPage), typeof(ConnectivityTestPage));

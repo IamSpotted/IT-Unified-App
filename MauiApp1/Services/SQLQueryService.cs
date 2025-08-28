@@ -45,7 +45,12 @@ namespace MauiApp1.Services
 
         public static string GetAllNetopsQuery => @"
         SELECT * FROM dbo.devices
-        WHERE device_type IN ('PC', 'Server', 'Router', 'Switch')
+        WHERE device_type IN ('PC', 'Server')
+        ORDER BY device_id";
+
+        public static string GetAllNetworkDevicesQuery => @"
+        SELECT * FROM dbo.devices
+        WHERE device_type IN ('Router', 'Switch')
         ORDER BY device_id";
 
         public static string UpdateDeviceQuery => @"

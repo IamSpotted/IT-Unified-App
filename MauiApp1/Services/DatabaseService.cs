@@ -353,6 +353,47 @@ public class DatabaseService : IDatabaseService, ITransientService
         return netops;
     }
 
+    public async Task<List<DeviceModel>> GetNetworkDevicesAsync()
+    {
+        var credentials = await _credentialsService.GetDatabaseCredentialsAsync();
+        if (credentials == null)
+        {
+            _logger.LogWarning("No database credentials available for GetNetworkDevicesAsync");
+            return new List<DeviceModel>();
+        }
+
+        var connectionString = BuildConnectionString(credentials.Server, credentials.Database,
+            credentials.UseWindowsAuthentication, credentials.Username, credentials.Password);
+
+        using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var query = SQLQueryService.GetAllNetworkDevicesQuery;
+        using var command = new SqlCommand(query, connection);
+
+        var networkDevices = new List<DeviceModel>();
+        using var reader = await command.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            networkDevices.Add(new DeviceModel
+            {
+                // Map fields as needed, similar to GetDevicesAsync
+                Hostname = GetStringOrEmpty(reader, "hostname"),
+                Model = GetString(reader, "model"),
+                PrimaryIp = GetString(reader, "primary_ip"),
+                Area = GetStringOrEmpty(reader, "area"),
+                Zone = GetStringOrEmpty(reader, "zone"),
+                Line = GetStringOrEmpty(reader, "line"),
+                Column = GetStringOrEmpty(reader, "pillar"),
+                Level = GetStringOrEmpty(reader, "floor"),
+                WebInterfaceUrl = GetStringOrEmpty(reader, "web_interface_url"),
+                // ...other fields...
+            });
+        }
+
+        return networkDevices;
+    }
+
     #region Device CRUD Operations
 
     /// <summary>

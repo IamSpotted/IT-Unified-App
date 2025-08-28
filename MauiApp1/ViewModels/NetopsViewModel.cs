@@ -285,13 +285,13 @@ public partial class NetopsViewModel : FilterableBaseViewModel<Netop>, ILoadable
                 $"📹 {netop.Hostname}",
                 "Cancel",
                 null,
-                "🌐 Open Web Interface",
+                "🌐 Open Remote Connection",
                 "ℹ️ Show Details");
 
             switch (action)
             {
-                case "🌐 Open Web Interface":
-                    await OpenWebInterface(netop);
+                case "🌐 Open Remote Connection":
+                    await RemoteConnectToDevice(netop);
                     break;
 
                 case "ℹ️ Show Details":
@@ -328,55 +328,7 @@ public partial class NetopsViewModel : FilterableBaseViewModel<Netop>, ILoadable
     // - Displays detailed error information to user
     // - Logs errors for troubleshooting and monitoring
     // - Provides fallback information for manual access
-    [RelayCommand]
-    private async Task OpenWebInterface(Netop netop)
-    {
-        try
-        {
-            _logger.LogInformation("Opening web interface for netop {Hostname} at {Url}",
-                netop.Hostname, netop.WebInterfaceUrl);
-
-            if (string.IsNullOrWhiteSpace(netop.WebInterfaceUrl))
-            {
-                await _dialogService.ShowAlertAsync("Error", "Web interface URL is empty or null");
-                return;
-            }
-
-            if (!Uri.TryCreate(netop.WebInterfaceUrl, UriKind.Absolute, out var uri))
-            {
-                await _dialogService.ShowAlertAsync("Error", $"Invalid URL format: {netop.WebInterfaceUrl}");
-                return;
-            }
-
-            // Optional pre-warm
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    using var client = new HttpClient();
-                    await client.GetAsync(uri);
-                }
-                catch
-                {
-                    // Just preloading
-                }
-            });
-
-            // Slight delay to avoid UI contention
-            await Task.Delay(100);
-
-            await Launcher.Default.OpenAsync(uri);
-
-            _logger.LogInformation("Successfully opened web interface for {Hostname}", netop.Hostname);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to open web interface for {Hostname}. URL: {Url}",
-                netop.Hostname, netop.WebInterfaceUrl);
-            await _dialogService.ShowAlertAsync("Error",
-                $"Unable to open web interface for {netop.Hostname}.\nURL: {netop.WebInterfaceUrl}\nError: {ex.Message}");
-        }
-    }
+    
 
     // Private helper method to initialize netop data by loading netops.
     // This method performs netop discovery for complete initialization.
@@ -515,58 +467,15 @@ public partial class NetopsViewModel : FilterableBaseViewModel<Netop>, ILoadable
     [RelayCommand]
     private async Task RemoteConnectToDevice(Netop device)
     {
-        await ExecuteSafelyAsync(async () =>
+        try
         {
-            try
-            {
-                if (device.DeviceType != "PC" && device.DeviceType != "Server")
-                {
-                    await _dialogService.ShowAlertAsync("Invalid Device Type", 
-                        "Remote connections are only available for PC and Server devices.");
-                    return;
-                }
-
-                if (string.IsNullOrEmpty(device.Hostname))
-                {
-                    await _dialogService.ShowAlertAsync("Configuration Error", 
-                        $"No hostname configured for {device.Hostname}. Please contact your administrator.");
-                    return;
-                }
-
-                if (!_netopConnectService.IsNetopAvailable())
-                {
-                    await _dialogService.ShowAlertAsync("Service Unavailable", 
-                        "Netop remote connection service is not available. Please check your configuration.");
-                    return;
-                }
-
-                _logger.LogInformation("Initiating remote connection to PC {Hostname}", 
-                    device.Hostname);
-
-                var success = await _netopConnectService.ConnectToDeviceAsync(device);
-
-                if (success)
-                {
-                    await _dialogService.ShowAlertAsync("Remote Connection", 
-                        $"Remote connection to {device.Hostname} has been initiated.\nNetop should be opening shortly.");
-                    
-                    _logger.LogInformation("Successfully initiated remote connection to PC {Hostname}", device.Hostname);
-                }
-                else
-                {
-                    await _dialogService.ShowAlertAsync("Connection Failed", 
-                        $"Failed to establish remote connection to {device.Hostname}.\nPlease check the device configuration and try again.");
-                    
-                    _logger.LogWarning("Failed to initiate remote connection to PC {Hostname}", device.Hostname);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during remote connection to device {Hostname}", device.Hostname);
-                await _dialogService.ShowAlertAsync("Error", 
-                    $"An error occurred while connecting to {device.Hostname}.\nError: {ex.Message}");
-            }
-        }, "Remote Connect to Device");
+            _netopService.ConnectToDevice(device.Hostname);
+            RestartStatusMessage = $"Connection to {device.Hostname} initiated.";
+        }
+        catch (Exception ex)
+        {
+            RestartStatusMessage = $"Failed to connect: {ex.Message}";
+        }
     }
 
     [RelayCommand]

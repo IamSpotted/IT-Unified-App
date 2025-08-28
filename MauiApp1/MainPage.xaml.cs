@@ -18,19 +18,17 @@
 public partial class MainPage : ContentPage, Interfaces.IView
 {
 	private readonly MainPageViewModel _viewModel;
-	private readonly RibbonView _ribbonView;
 
 	// Constructor with dependency injection for ViewModel and RibbonView.
 	// The DI container automatically provides these dependencies based on
 	// the auto-discovery service registration in MauiProgram.cs
-	public MainPage(MainPageViewModel viewModel, RibbonView ribbonView)
+	public MainPage(MainPageViewModel viewModel)
 	{
 		// Initialize the XAML components and UI elements
 		InitializeComponent();
 		
 		// Store injected dependencies for use throughout the page lifecycle
 		_viewModel = viewModel;
-		_ribbonView = ribbonView;
 		
 		// Bind the ViewModel to enable data binding between UI and business logic
 		// This connects all {Binding} expressions in the XAML to ViewModel properties
@@ -38,6 +36,5 @@ public partial class MainPage : ContentPage, Interfaces.IView
 		
 		// Integrate the ribbon navigation control into the page layout
 		// RibbonContainer is defined in MainPage.xaml as a ContentView placeholder
-		RibbonContainer.Content = _ribbonView;
 	}
 }

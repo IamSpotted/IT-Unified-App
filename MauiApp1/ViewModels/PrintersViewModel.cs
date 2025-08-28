@@ -121,30 +121,28 @@ public partial class PrintersViewModel : FilterableBaseViewModel<Printer>, ILoad
 
             if (Application.Current?.MainPage == null) return;
 
-            var details = $"Printer: {printer.Hostname}\n" +
-                          $"IP Address: {printer.PrimaryIp}\n" +
-                          $"Model: {printer.Model}\n" +
-                          $"Serial: {printer.SerialNumber}\n" +
-                          $"Location: {printer.FullLocation}\n" +
-                          $"Web Interface: {printer.WebInterfaceUrl}";
+            var details = $"Printer: {printer.Hostname}\nIP Address: {printer.PrimaryIp}\nLocation: {printer.FullLocation}\nWeb Interface: {printer.WebInterfaceUrl}";
 
+            // Show action sheet first
             var action = await Application.Current.MainPage.DisplayActionSheet(
-                $" {printer.Hostname}",
+                $"🖨️ {printer.Hostname}",
                 "Cancel",
                 null,
-                " Open Web Interface",
-                " Show Details");
+                "🌐 Open Web Interface",
+                "ℹ️ Show Details");
 
             switch (action)
             {
-                case "Open Web Interface":
+                case "🌐 Open Web Interface":
                     await OpenWebInterface(printer);
                     break;
-                case "Show Details":
+
+                case "ℹ️ Show Details":
+                    // Now query SolarWinds status
                     var status = await GetSolarWindsStatusAsync(printer);
                     var statusEmoji = status?.IsOnline == true ? "🟢" : "🔴";
                     var statusText = status?.IsOnline == true ? "Online" : "Offline";
-                    var responseTime = status?.ResponseTimeMs > 0 ? $"{status.ResponseTimeMs} ms" : "";
+                    var responseTime = status?.ResponseTimeMs > 0 ? $" ({status.ResponseTimeMs}ms)" : "";
 
                     var enhancedDetails = $"{details}\n\nLive Status: {statusText}\nResponse Time: {status?.ResponseTimeMs ?? 0}ms\nLast Checked: {DateTime.Now:HH:mm:ss}";
                     await Application.Current.MainPage.DisplayAlert(
@@ -159,10 +157,9 @@ public partial class PrintersViewModel : FilterableBaseViewModel<Printer>, ILoad
     {
         try
         {
-            _logger.LogInformation("Opening web interface for printer {Hostname} at {Url}", 
+            _logger.LogInformation("Opening web interface for printer {Hostname} at {Url}",
                 printer.Hostname, printer.WebInterfaceUrl);
 
-            // Check if URL is valid
             if (string.IsNullOrWhiteSpace(printer.WebInterfaceUrl))
             {
                 await _dialogService.ShowAlertAsync("Error", "Web interface URL is empty or null");
@@ -175,18 +172,32 @@ public partial class PrintersViewModel : FilterableBaseViewModel<Printer>, ILoad
                 return;
             }
 
-            _logger.LogInformation("Attempting to launch URL using Process.Start: {Url}", printer.WebInterfaceUrl);
-            
-            // Use the same pattern as the working console app
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(printer.WebInterfaceUrl) { UseShellExecute = true });
+            // Optional pre-warm
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    using var client = new HttpClient();
+                    await client.GetAsync(uri);
+                }
+                catch
+                {
+                    // Just preloading
+                }
+            });
 
-            _logger.LogInformation("Successfully opened web interface for printer {Hostname}", printer.Hostname);
+            // Slight delay to avoid UI contention
+            await Task.Delay(100);
+
+            await Launcher.Default.OpenAsync(uri);
+
+            _logger.LogInformation("Successfully opened web interface for {Hostname}", printer.Hostname);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to open web interface for printer {Hostname}. URL: {Url}", 
+            _logger.LogError(ex, "Failed to open web interface for {Hostname}. URL: {Url}",
                 printer.Hostname, printer.WebInterfaceUrl);
-            await _dialogService.ShowAlertAsync("Error", 
+            await _dialogService.ShowAlertAsync("Error",
                 $"Unable to open web interface for {printer.Hostname}.\nURL: {printer.WebInterfaceUrl}\nError: {ex.Message}");
         }
     }

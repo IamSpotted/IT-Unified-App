@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:MauiApp1.Controls"
-             x:Class="MauiApp1.Views.PrintersPage"
+             x:Class="MauiApp1.Views.NetworkDevicesPage"
              Title="{Binding Title}"
              BackgroundColor="{StaticResource PageBackgroundBrush}">
     
@@ -58,26 +58,10 @@
                                 WidthRequest="100" />
                     </StackLayout>
                     
-                    <!-- Model Filter -->
-                    <StackLayout>
-                        <Label Text="Model" FontSize="12" HorizontalOptions="Center" />
-                        <Picker ItemsSource="{Binding AvailableModels}"
-                                SelectedItem="{Binding SelectedModel}"
-                                WidthRequest="120" />
-                    </StackLayout>
-                    
-                    <!-- Status Filter -->
-                    <StackLayout>
-                        <Label Text="Status" FontSize="12" HorizontalOptions="Center" />
-                        <Picker ItemsSource="{Binding AvailableStatuses}"
-                                SelectedItem="{Binding SelectedStatus}"
-                                WidthRequest="100" />
-                    </StackLayout>
-                    
                     <!-- Action Buttons -->
                     <StackLayout Orientation="Horizontal" Spacing="5" VerticalOptions="End">
                         <Button Text="🔄 Refresh" 
-                                Command="{Binding RefreshPrinterStatusCommand}"
+                                Command="{Binding LoadNetworkDevicesCommand}"
                                 FontSize="12" 
                                 Padding="10,5" />
                         <Button Text="🗑️ Clear" 
@@ -90,7 +74,7 @@
                     <StackLayout Spacing="5" VerticalOptions="End" Margin="10,0,0,0">
                         <Label Text="Search" FontSize="12" HorizontalOptions="Center" />
                         <Entry Text="{Binding SearchText}"
-                               Placeholder="Search printers..."
+                               Placeholder="Search network devices..."
                                WidthRequest="200"
                                FontSize="12" />
                     </StackLayout>
@@ -105,7 +89,7 @@
                                     SelectionMode="None"
                                     BackgroundColor="Transparent">
                         <CollectionView.ItemsLayout>
-                            <GridItemsLayout x:Name="PrinterGridLayout"
+                            <GridItemsLayout x:Name="NetworkDeviceGridLayout"
                                              Orientation="Vertical"
                                              Span="{Binding GridSpan}"
                                              HorizontalItemSpacing="10"
@@ -120,12 +104,12 @@
                                        Padding="10"
                                        HasShadow="True">
                                     <Frame.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectPrinterCommand}"
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectNetworkDeviceCommand}"
                                                               CommandParameter="{Binding}" />
                                     </Frame.GestureRecognizers>
                                     
                                     <StackLayout Spacing="5">
-                                        <Label Text="🖨️"
+                                        <Label Text="📹"
                                                FontSize="24"
                                                HorizontalOptions="Center" />
                                                
@@ -163,8 +147,8 @@
                         
                         <CollectionView.EmptyView>
                             <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Padding="50">
-                                <Label Text="🖨️" FontSize="48" HorizontalOptions="Center" />
-                                <Label Text="No printers found" 
+                                <Label Text="📹" FontSize="48" HorizontalOptions="Center" />
+                                <Label Text="No network devices found" 
                                        FontSize="18" 
                                        FontAttributes="Bold"
                                        HorizontalOptions="Center" />
@@ -172,8 +156,8 @@
                                        FontSize="14"
                                        HorizontalOptions="Center"
                                        TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
-                                <Button Text="Refresh Printers"
-                                        Command="{Binding RefreshPrinterStatusCommand}"
+                                <Button Text="Refresh NetworkDevices"
+                                        Command="{Binding LoadNetworkDevicesCommand}"
                                         IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
                                         HorizontalOptions="Center"
                                         Margin="0,20,0,0" />
@@ -193,7 +177,7 @@
                                            Color="{StaticResource Primary}"
                                            WidthRequest="50"
                                            HeightRequest="50" />
-                        <Label Text="Loading printers..."
+                        <Label Text="Loading network devices..."
                                FontSize="16"
                                HorizontalOptions="Center"
                                Margin="0,10,0,0" />
