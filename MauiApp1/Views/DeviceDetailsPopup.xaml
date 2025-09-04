@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="MauiApp1.Views.DeviceDetailsPopup"
+             Title="Device Details"
+             BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#1E1E1E}">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+        
+        <!-- Header -->
+        <StackLayout Grid.Row="0" Spacing="10" Margin="0,0,0,20">
+            <Label Text="🖥️ Device Details" 
+                   FontSize="24" 
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="{AppThemeBinding Light=#333333, Dark=#FFFFFF}" />
+            <Label Text="{Binding Device.Hostname}" 
+                   FontSize="20" 
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="{StaticResource Primary}" />
+        </StackLayout>
+
+        <!-- Device Details Content -->
+        <ScrollView Grid.Row="1">
+            <StackLayout Spacing="15">
+
+                <!-- Basic Information Section -->
+                <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#2B2B2B}" 
+                       Padding="15" 
+                       CornerRadius="10"
+                       HasShadow="True">
+                    <StackLayout Spacing="10">
+                        <Label Text="📋 Basic Information" 
+                               FontSize="18" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}" />
+                        
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="5">
+                            <Label Grid.Row="0" Grid.Column="0" Text="Hostname:" FontAttributes="Bold" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Device.Hostname}" />
+                            
+                            <Label Grid.Row="1" Grid.Column="0" Text="Serial Number:" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Device.SerialNumber}" />
+                            
+                            <Label Grid.Row="2" Grid.Column="0" Text="Asset Tag:" FontAttributes="Bold" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding Device.AssetTag}" />
+                            
+                            <Label Grid.Row="3" Grid.Column="0" Text="Device Type:" FontAttributes="Bold" />
+                            <Label Grid.Row="3" Grid.Column="1" Text="{Binding Device.device_type}" />
+                            
+                            <Label Grid.Row="4" Grid.Column="0" Text="Status:" FontAttributes="Bold" />
+                            <Label Grid.Row="4" Grid.Column="1" Text="{Binding Device.DeviceStatus}" />
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Hardware Information Section -->
+                <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#2B2B2B}" 
+                       Padding="15" 
+                       CornerRadius="10"
+                       HasShadow="True">
+                    <StackLayout Spacing="10">
+                        <Label Text="⚙️ Hardware Information" 
+                               FontSize="18" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}" />
+                        
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="5">
+                            <Label Grid.Row="0" Grid.Column="0" Text="Manufacturer:" FontAttributes="Bold" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Device.Manufacturer}" />
+                            
+                            <Label Grid.Row="1" Grid.Column="0" Text="Model:" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Device.Model}" />
+                            
+                            <Label Grid.Row="2" Grid.Column="0" Text="CPU Info:" FontAttributes="Bold" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding Device.CpuInfo}" />
+                            
+                            <Label Grid.Row="3" Grid.Column="0" Text="RAM:" FontAttributes="Bold" />
+                            <Label Grid.Row="3" Grid.Column="1" Text="{Binding Device.TotalRamGb, StringFormat='{0} GB'}" />
+                            
+                            <Label Grid.Row="4" Grid.Column="0" Text="RAM Type:" FontAttributes="Bold" />
+                            <Label Grid.Row="4" Grid.Column="1" Text="{Binding Device.RamType}" />
+                            
+                            <Label Grid.Row="5" Grid.Column="0" Text="BIOS Version:" FontAttributes="Bold" />
+                            <Label Grid.Row="5" Grid.Column="1" Text="{Binding Device.BiosVersion}" />
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Operating System Section -->
+                <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#2B2B2B}" 
+                       Padding="15" 
+                       CornerRadius="10"
+                       HasShadow="True">
+                    <StackLayout Spacing="10">
+                        <Label Text="💻 Operating System" 
+                               FontSize="18" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}" />
+                        
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="5">
+                            <Label Grid.Row="0" Grid.Column="0" Text="OS Name:" FontAttributes="Bold" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Device.OsName}" />
+                            
+                            <Label Grid.Row="1" Grid.Column="0" Text="OS Version:" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Device.OSVersion}" />
+                            
+                            <Label Grid.Row="2" Grid.Column="0" Text="Architecture:" FontAttributes="Bold" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding Device.OsArchitecture}" />
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Network Information Section -->
+                <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#2B2B2B}" 
+                       Padding="15" 
+                       CornerRadius="10"
+                       HasShadow="True">
+                    <StackLayout Spacing="10">
+                        <Label Text="🌐 Network Information" 
+                               FontSize="18" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}" />
+                        
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="5">
+                            <Label Grid.Row="0" Grid.Column="0" Text="Primary IP:" FontAttributes="Bold" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Device.PrimaryIp}" />
+                            
+                            <Label Grid.Row="1" Grid.Column="0" Text="Primary MAC:" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Device.PrimaryMac}" />
+                            
+                            <Label Grid.Row="2" Grid.Column="0" Text="Subnet:" FontAttributes="Bold" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding Device.PrimarySubnet}" />
+                            
+                            <Label Grid.Row="3" Grid.Column="0" Text="Domain:" FontAttributes="Bold" />
+                            <Label Grid.Row="3" Grid.Column="1" Text="{Binding Device.DomainName}" />
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Location Information Section -->
+                <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#2B2B2B}" 
+                       Padding="15" 
+                       CornerRadius="10"
+                       HasShadow="True">
+                    <StackLayout Spacing="10">
+                        <Label Text="📍 Location Information" 
+                               FontSize="18" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}" />
+                        
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="5">
+                            <Label Grid.Row="0" Grid.Column="0" Text="Area:" FontAttributes="Bold" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Device.Area}" />
+                            
+                            <Label Grid.Row="1" Grid.Column="0" Text="Zone:" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Device.Zone}" />
+                            
+                            <Label Grid.Row="2" Grid.Column="0" Text="Line:" FontAttributes="Bold" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding Device.Line}" />
+                            
+                            <Label Grid.Row="3" Grid.Column="0" Text="Floor:" FontAttributes="Bold" />
+                            <Label Grid.Row="3" Grid.Column="1" Text="{Binding Device.Floor}" />
+                            
+                            <Label Grid.Row="4" Grid.Column="0" Text="Pillar:" FontAttributes="Bold" />
+                            <Label Grid.Row="4" Grid.Column="1" Text="{Binding Device.Pillar}" />
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Storage Information Section -->
+                <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#2B2B2B}" 
+                       Padding="15" 
+                       CornerRadius="10"
+                       HasShadow="True">
+                    <StackLayout Spacing="10">
+                        <Label Text="💾 Storage Information" 
+                               FontSize="18" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}" />
+                        
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="5">
+                            <Label Grid.Row="0" Grid.Column="0" Text="Storage Info:" FontAttributes="Bold" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Device.StorageInfo}" />
+                            
+                            <Label Grid.Row="1" Grid.Column="0" Text="Storage Type:" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Device.StorageType}" />
+                            
+                            <Label Grid.Row="2" Grid.Column="0" Text="Storage Model:" FontAttributes="Bold" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding Device.StorageModel}" />
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+
+                <!-- System Information Section -->
+                <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#2B2B2B}" 
+                       Padding="15" 
+                       CornerRadius="10"
+                       HasShadow="True">
+                    <StackLayout Spacing="10">
+                        <Label Text="⏰ System Information" 
+                               FontSize="18" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}" />
+                        
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="5">
+                            <Label Grid.Row="0" Grid.Column="0" Text="Created:" FontAttributes="Bold" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Device.CreatedAt, StringFormat='{0:yyyy-MM-dd HH:mm}'}" />
+                            
+                            <Label Grid.Row="1" Grid.Column="0" Text="Updated:" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Device.UpdatedAt, StringFormat='{0:yyyy-MM-dd HH:mm}'}" />
+                            
+                            <Label Grid.Row="2" Grid.Column="0" Text="Last Discovered:" FontAttributes="Bold" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding Device.LastDiscovered, StringFormat='{0:yyyy-MM-dd HH:mm}'}" />
+                            
+                            <Label Grid.Row="3" Grid.Column="0" Text="Discovery Method:" FontAttributes="Bold" />
+                            <Label Grid.Row="3" Grid.Column="1" Text="{Binding Device.DiscoveryMethod}" />
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Additional Notes Section -->
+                <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#2B2B2B}" 
+                       Padding="15" 
+                       CornerRadius="10"
+                       HasShadow="True"
+                       IsVisible="{Binding Device.AdditionalNotes, Converter={StaticResource StringToBoolConverter}}">
+                    <StackLayout Spacing="10">
+                        <Label Text="📝 Additional Notes" 
+                               FontSize="18" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}" />
+                        
+                        <Label Text="{Binding Device.AdditionalNotes}" 
+                               TextType="Text" />
+                    </StackLayout>
+                </Frame>
+
+            </StackLayout>
+        </ScrollView>
+
+        <!-- Close Button -->
+        <Button Grid.Row="2" 
+                Text="✅ Close"
+                Command="{Binding CloseCommand}"
+                BackgroundColor="{StaticResource Primary}"
+                TextColor="White"
+                CornerRadius="10"
+                HeightRequest="50"
+                FontSize="16"
+                FontAttributes="Bold"
+                Margin="0,20,0,0" />
+
+    </Grid>
+</ContentPage>

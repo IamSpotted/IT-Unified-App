@@ -1,0 +1,19 @@
+# Bulk Device Scan Failure Report
+# Generated: 2025-09-03 14:30:15
+# Original file: c:\Users\g02lxmk\IT-Unified-App\IT-Unified-App-main\MauiApp1\sample_devices.txt
+# Total devices processed: 8
+# Failed devices: 3
+# Successful devices: 4
+# Skipped devices: 1
+
+# Failed devices (you can copy these lines to retry):
+# Format: hostname_or_ip    # Error: error_message
+
+192.168.1.999    # Error: Host not reachable
+OFFLINE-SERVER    # Error: WMI connection timeout
+BADNAME-123    # Error: Invalid hostname format
+
+# Summary:
+# To retry failed devices, copy the device names above (without the '# Error:' comments)
+# and paste them into a new text file for bulk scanning.
+# Total failed devices in this report: 3

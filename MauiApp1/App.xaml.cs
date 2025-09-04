@@ -29,6 +29,13 @@ public partial class App : Application
 		// Initialize XAML components, load resources, and set up application-wide elements
 		// This loads converters, styles, and theme resources defined in App.xaml
 		InitializeComponent();
+		
+		// Initialize application session tracking
+		// This creates a unique session ID that will be used for all audit logging
+		// until the application is closed and reopened
+		var sessionInfo = Services.ApplicationSession.SessionInfo;
+		System.Diagnostics.Debug.WriteLine($"IT Unified App started - {sessionInfo}");
+		Console.WriteLine($"IT Unified App started - {sessionInfo}");
 	}
 
 	// Creates the main application window when the platform requests it.

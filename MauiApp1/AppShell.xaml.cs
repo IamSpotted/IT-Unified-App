@@ -75,5 +75,8 @@ public partial class AppShell : Shell
 		
 		// Register ping session detail page
 		Routing.RegisterRoute(nameof(PingSessionDetailPage), typeof(PingSessionDetailPage));
+		
+		// Register device details popup
+		Routing.RegisterRoute(nameof(DeviceDetailsPopup), typeof(DeviceDetailsPopup));
 	}
 }

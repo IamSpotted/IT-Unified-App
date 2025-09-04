@@ -277,7 +277,7 @@ public partial class NetworkDevicesViewModel : FilterableBaseViewModel<NetworkDe
 
                 case "ℹ️ Show Details":
                     // Now query SolarWinds status
-                    var status = await GetSolarWindsStatus(networkDevice);
+                    var status = GetSolarWindsStatus(networkDevice);
                     var statusEmoji = status?.IsOnline == true ? "🟢" : "🔴";
                     var statusText = status?.IsOnline == true ? "Online" : "Offline";
                     var responseTime = status?.ResponseTimeMs > 0 ? $" ({status.ResponseTimeMs}ms)" : "";
@@ -456,7 +456,7 @@ public partial class NetworkDevicesViewModel : FilterableBaseViewModel<NetworkDe
     }
 
     // Method to query SolarWinds for networkDevice device status
-    private async Task<DeviceStatus?> GetSolarWindsStatus(NetworkDevice networkDevice)
+    private DeviceStatus? GetSolarWindsStatus(NetworkDevice networkDevice)
     {
         try
         {

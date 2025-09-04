@@ -296,7 +296,7 @@ public partial class NetopsViewModel : FilterableBaseViewModel<Netop>, ILoadable
 
                 case "ℹ️ Show Details":
                     // Now query SolarWinds status
-                    var status = await GetSolarWindsStatus(netop);
+                    var status = GetSolarWindsStatus(netop);
                     var statusEmoji = status?.IsOnline == true ? "🟢" : "🔴";
                     var statusText = status?.IsOnline == true ? "Online" : "Offline";
                     var responseTime = status?.ResponseTimeMs > 0 ? $" ({status.ResponseTimeMs}ms)" : "";
@@ -429,7 +429,7 @@ public partial class NetopsViewModel : FilterableBaseViewModel<Netop>, ILoadable
     }
 
     // Method to query SolarWinds for netop device status
-    private async Task<DeviceStatus?> GetSolarWindsStatus(Netop netop)
+    private DeviceStatus? GetSolarWindsStatus(Netop netop)
     {
         try
         {
@@ -465,16 +465,18 @@ public partial class NetopsViewModel : FilterableBaseViewModel<Netop>, ILoadable
     }
     
     [RelayCommand]
-    private async Task RemoteConnectToDevice(Netop device)
+    private Task RemoteConnectToDevice(Netop device)
     {
         try
         {
             _netopService.ConnectToDevice(device.Hostname);
             RestartStatusMessage = $"Connection to {device.Hostname} initiated.";
+            return Task.CompletedTask;
         }
         catch (Exception ex)
         {
             RestartStatusMessage = $"Failed to connect: {ex.Message}";
+            return Task.FromException(ex);
         }
     }
 

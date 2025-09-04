@@ -100,21 +100,8 @@
                             FontAttributes="Bold" />
                 </StackLayout>
 
-                <!-- Results Section -->
-                <CollectionView Grid.Row="4" 
-                               ItemsSource="{Binding ComputerResults}"
-                               IsVisible="{Binding HasResults}"
-                               Margin="0,10,0,0"
-                               SelectionMode="None">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-
                 <!-- Side-by-side Comparison Section -->
-                <CollectionView Grid.Row="5"
+                <CollectionView Grid.Row="4"
                                ItemsSource="{Binding ComparisonResults}"
                                IsVisible="{Binding HasResults}"
                                Margin="0,10,0,0"
@@ -160,27 +147,33 @@
                                                            FontSize="16" 
                                                            FontAttributes="Bold"
                                                            TextColor="{AppThemeBinding Light=#333333, Dark=#FFFFFF}" />
-                                                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="5" ColumnSpacing="10">
-                                                        <Label Grid.Row="0" Grid.Column="0" Text="OS:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
-                                                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding ScriptInfo.OperatingSystem}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
-                                                        <Label Grid.Row="1" Grid.Column="0" Text="Architecture:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
-                                                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding ScriptInfo.OSArchitecture}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
-                                                        <Label Grid.Row="2" Grid.Column="0" Text="Processor:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
-                                                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding ScriptInfo.ProcessorName}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
-                                                        <Label Grid.Row="3" Grid.Column="0" Text="BIOS Version:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
-                                                        <Label Grid.Row="3" Grid.Column="1" Text="{Binding ScriptInfo.BIOSVersion}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
-                                                        <Label Grid.Row="4" Grid.Column="0" Text="Uptime:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
-                                                        <Label Grid.Row="4" Grid.Column="1" Text="{Binding ScriptInfo.Uptime}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                                                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="5" ColumnSpacing="10">
+                                                        <Label Grid.Row="0" Grid.Column="0" Text="Manufacturer:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding ScriptInfo.Manufacturer}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                                                        <Label Grid.Row="1" Grid.Column="0" Text="Model:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding ScriptInfo.Model}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                                                        <Label Grid.Row="2" Grid.Column="0" Text="OS:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding ScriptInfo.OperatingSystem}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                                                        <Label Grid.Row="3" Grid.Column="0" Text="Architecture:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                                        <Label Grid.Row="3" Grid.Column="1" Text="{Binding ScriptInfo.OSArchitecture}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                                                        <Label Grid.Row="4" Grid.Column="0" Text="Processor:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                                        <Label Grid.Row="4" Grid.Column="1" Text="{Binding ScriptInfo.ProcessorName}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                                                        <Label Grid.Row="5" Grid.Column="0" Text="BIOS Version:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                                        <Label Grid.Row="5" Grid.Column="1" Text="{Binding ScriptInfo.BIOSVersion}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                                                        <Label Grid.Row="6" Grid.Column="0" Text="Uptime:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                                        <Label Grid.Row="6" Grid.Column="1" Text="{Binding ScriptInfo.Uptime}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
                                                     </Grid>
                                                 </StackLayout>
-                                                <StackLayout IsVisible="{Binding ScriptInfo.HasAssetTag}" Spacing="8">
+                                                <StackLayout IsVisible="{Binding ScriptInfo.HasAssetInfo}" Spacing="8">
                                                     <Label Text="🏷️ Asset Information" 
                                                            FontSize="16" 
                                                            FontAttributes="Bold"
                                                            TextColor="{AppThemeBinding Light=#333333, Dark=#FFFFFF}" />
-                                                    <Grid ColumnDefinitions="Auto,*" RowSpacing="5" ColumnSpacing="10">
-                                                        <Label Grid.Row="0" Grid.Column="0" Text="Asset Tag:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
-                                                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding ScriptInfo.AssetTag}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                                                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" RowSpacing="5" ColumnSpacing="10">
+                                                        <Label Grid.Row="0" Grid.Column="0" Text="Serial Number:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" IsVisible="{Binding ScriptInfo.HasSerialNumber}" />
+                                                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding ScriptInfo.SerialNumber}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" IsVisible="{Binding ScriptInfo.HasSerialNumber}" />
+                                                        <Label Grid.Row="1" Grid.Column="0" Text="Asset Tag:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" IsVisible="{Binding ScriptInfo.HasAssetTag}" />
+                                                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding ScriptInfo.AssetTag}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" IsVisible="{Binding ScriptInfo.HasAssetTag}" />
                                                     </Grid>
                                                 </StackLayout>
                                                 <StackLayout IsVisible="{Binding ScriptInfo.HasMemoryInfo}" Spacing="8">
@@ -207,14 +200,14 @@
                                                                        SelectionMode="None">
                                                             <CollectionView.ItemTemplate>
                                                                 <DataTemplate>
-                                                                    <Grid ColumnDefinitions="Auto,Auto,*" RowSpacing="2" ColumnSpacing="10" Padding="0,2">
-                                                                        <Label Grid.Column="1" 
+                                                                    <Grid ColumnDefinitions="Auto,*" RowSpacing="5" ColumnSpacing="15" Padding="5,5">
+                                                                        <Label Grid.Column="0" 
                                                                                Text="{Binding DriveLetter, StringFormat='{0}'}" 
                                                                                FontAttributes="Bold" 
                                                                                TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" 
                                                                                VerticalOptions="Start"
                                                                                MinimumWidthRequest="40" />
-                                                                        <StackLayout Grid.Column="1" Spacing="2">
+                                                                        <StackLayout Grid.Column="1" Spacing="5" VerticalOptions="Start">
                                                                             <Label Text="{Binding SizeInfo}" 
                                                                                    FontSize="14"
                                                                                    TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
@@ -256,7 +249,7 @@
                                                                 <DataTemplate>
                                                                     <Grid ColumnDefinitions="Auto,*" RowSpacing="5" ColumnSpacing="10" Padding="0,2">
                                                                         <Label Grid.Column="0" 
-                                                                               Text="{Binding Name, StringFormat='{0}:'}" 
+                                                                               Text="{Binding DisplayName, StringFormat='{0}:'}" 
                                                                                FontAttributes="Bold" 
                                                                                TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" 
                                                                                VerticalOptions="Start" />
@@ -357,14 +350,20 @@
                                                            FontSize="16" 
                                                            FontAttributes="Bold"
                                                            TextColor="{AppThemeBinding Light=#333333, Dark=#FFFFFF}" />
-                                                    <Grid ColumnDefinitions="Auto,Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="5" ColumnSpacing="10">
-                                                        <CheckBox Grid.Row="0" Grid.Column="0" IsChecked="{Binding UpdateOsName}" VerticalOptions="Center" />
-                                                        <Label Grid.Row="0" Grid.Column="1" Text="OS:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
-                                                        <Label Grid.Row="0" Grid.Column="2" Text="{Binding DatabaseInfo.OperatingSystem}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
-                                                        <CheckBox Grid.Row="1" Grid.Column="0" IsChecked="{Binding UpdateOsArchitecture}" VerticalOptions="Center" />
-                                                        <Label Grid.Row="1" Grid.Column="1" Text="Architecture:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
-                                                        <Label Grid.Row="1" Grid.Column="2" Text="{Binding DatabaseInfo.OSArchitecture}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
-                                                        <CheckBox Grid.Row="2" Grid.Column="0" IsChecked="{Binding UpdateCpuInfo}" VerticalOptions="Center" />
+                                                    <Grid ColumnDefinitions="Auto,Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="5" ColumnSpacing="10">
+                                                        <CheckBox Grid.Row="0" Grid.Column="0" IsChecked="{Binding UpdateManufacturer}" VerticalOptions="Center" />
+                                                        <Label Grid.Row="0" Grid.Column="1" Text="Manufacturer:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                                        <Label Grid.Row="0" Grid.Column="2" Text="{Binding DatabaseInfo.Manufacturer}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                                                        <CheckBox Grid.Row="1" Grid.Column="0" IsChecked="{Binding UpdateModel}" VerticalOptions="Center" />
+                                                        <Label Grid.Row="1" Grid.Column="1" Text="Model:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                                        <Label Grid.Row="1" Grid.Column="2" Text="{Binding DatabaseInfo.Model}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                                                        <CheckBox Grid.Row="2" Grid.Column="0" IsChecked="{Binding UpdateOsName}" VerticalOptions="Center" />
+                                                        <Label Grid.Row="2" Grid.Column="1" Text="OS:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                                        <Label Grid.Row="2" Grid.Column="2" Text="{Binding DatabaseInfo.OperatingSystem}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                                                        <CheckBox Grid.Row="3" Grid.Column="0" IsChecked="{Binding UpdateOsArchitecture}" VerticalOptions="Center" />
+                                                        <Label Grid.Row="3" Grid.Column="1" Text="Architecture:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                                                        <Label Grid.Row="3" Grid.Column="2" Text="{Binding DatabaseInfo.OSArchitecture}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
+                                                        <CheckBox Grid.Row="4" Grid.Column="0" IsChecked="{Binding UpdateCpuInfo}" VerticalOptions="Center" />
                                                         <Label Grid.Row="2" Grid.Column="1" Text="Processor:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
                                                         <Label Grid.Row="2" Grid.Column="2" Text="{Binding DatabaseInfo.ProcessorName}" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" />
                                                         <CheckBox Grid.Row="3" Grid.Column="0" IsChecked="{Binding UpdateBIOSVersion}" VerticalOptions="Center" />

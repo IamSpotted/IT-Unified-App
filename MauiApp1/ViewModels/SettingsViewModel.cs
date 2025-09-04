@@ -1,5 +1,6 @@
 using MauiApp1.Interfaces;
 using MauiApp1.Models;
+using System.Threading;
 
 namespace MauiApp1.ViewModels;
 
@@ -10,6 +11,8 @@ public partial class SettingsViewModel : BaseViewModel
     private readonly SecureCredentialsService _credentialsService;
     private readonly IDatabaseService _databaseService;
     private readonly IAuthorizationService _authorizationService;
+    private readonly Timer _sessionTimer;
+    private bool _disposed = false;
 
     [ObservableProperty]
     private bool _notificationsEnabled = true;
@@ -28,6 +31,16 @@ public partial class SettingsViewModel : BaseViewModel
 
     [ObservableProperty]
     private string _companyName = "VW Chattanooga IT Shop Floor";
+
+    // Session Information
+    [ObservableProperty]
+    private string _sessionId = Services.ApplicationSession.SessionId.ToString();
+
+    [ObservableProperty]
+    private DateTime _sessionStartTime = Services.ApplicationSession.SessionStartTime;
+
+    [ObservableProperty]
+    private TimeSpan _sessionDuration = Services.ApplicationSession.SessionDuration;
 
     // Theme & Appearance Settings
     [ObservableProperty]
@@ -152,6 +165,15 @@ public partial class SettingsViewModel : BaseViewModel
         _credentialsService = credentialsService;
         _databaseService = databaseService;
         _authorizationService = authorizationService;
+        
+        // Initialize session properties
+        SessionId = ApplicationSession.SessionId.ToString();
+        SessionStartTime = ApplicationSession.SessionStartTime;
+        SessionDuration = ApplicationSession.SessionDuration;
+        
+        // Start timer to update session duration every minute
+        _sessionTimer = new Timer(UpdateSessionDuration, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
+        
         _ = InitializeAsync();
     }
 
@@ -590,6 +612,41 @@ public partial class SettingsViewModel : BaseViewModel
     }
 
     [RelayCommand]
+    private async Task EnableTestingMode()
+    {
+        try
+        {
+            _authorizationService.EnableTestingMode(true);
+            await LoadAuthorizationInfoAsync(); // Refresh role display
+            await _dialogService.ShowAlertAsync("Testing Mode", 
+                "Testing mode enabled! All users now have SystemAdmin access.\n\nRemember to disable this before production deployment.");
+            _logger.LogWarning("Testing mode enabled - all users granted SystemAdmin access");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to enable testing mode");
+            await _dialogService.ShowAlertAsync("Error", $"Failed to enable testing mode: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private async Task DisableTestingMode()
+    {
+        try
+        {
+            _authorizationService.EnableTestingMode(false);
+            await LoadAuthorizationInfoAsync(); // Refresh role display
+            await _dialogService.ShowAlertAsync("Testing Mode", "Testing mode disabled. Normal AD-based access control restored.");
+            _logger.LogInformation("Testing mode disabled - normal access control restored");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to disable testing mode");
+            await _dialogService.ShowAlertAsync("Error", $"Failed to disable testing mode: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
     private async Task TestAllPermissions()
     {
         if (!DeveloperModeEnabled) return;
@@ -870,5 +927,33 @@ Company: {CompanyName}
         {
             IsBusy = false;
         }
+    }
+
+    private void UpdateSessionDuration(object? state)
+    {
+        // Update session duration on the UI thread
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            SessionDuration = Services.ApplicationSession.SessionDuration;
+        });
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _sessionTimer?.Dispose();
+            }
+            _disposed = true;
+        }
+    }
+
+    public override void Dispose()
+    {
+        Dispose(true);
+        base.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

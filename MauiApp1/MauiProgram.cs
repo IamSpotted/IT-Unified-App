@@ -91,6 +91,10 @@ public static class MauiProgram
 		services.AddTransient<PingSessionDetailPage>();
 		services.AddTransient<PingSessionDetailViewModel>();
 
+		// Register Device Details popup and ViewModel
+		services.AddTransient<DeviceDetailsPopup>();
+		services.AddTransient<DeviceDetailsViewModel>();
+
 		// Register Netop Connect service
 		services.AddSingleton<INetopConnectService, NetopConnectService>();
 
@@ -112,8 +116,17 @@ public static class MauiProgram
 	private static IServiceCollection ConfigureLogging(this IServiceCollection services)
 	{
 #if DEBUG
-		// Debug builds: Add debug output logging for development
-		services.AddLogging(builder => builder.AddDebug());
+		// Debug builds: Add debug output and file logging for development
+		services.AddLogging(builder => 
+		{
+			builder.AddDebug();
+			// Add file logging to easily track database connections
+			var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MauiApp1", "logs");
+			Directory.CreateDirectory(logPath);
+			var logFile = Path.Combine(logPath, $"app-{DateTime.Now:yyyy-MM-dd}.log");
+			
+			builder.AddProvider(new FileLoggerProvider(logFile));
+		});
 #else
 		// Release builds: Standard logging configuration for production
 		services.AddLogging();

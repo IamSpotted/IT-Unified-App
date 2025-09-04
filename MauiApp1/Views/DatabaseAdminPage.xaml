@@ -2,8 +2,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:MauiApp1.Controls"
+             xmlns:behaviors="clr-namespace:MauiApp1.Behaviors"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             xmlns:mpower="clr-namespace:MPowerKit.TabView;assembly=MPowerKit.TabView"
              x:Class="MauiApp1.Views.DatabaseAdminPage"
              Title="{Binding Title}"
              BackgroundColor="{StaticResource PageBackgroundBrush}">
@@ -112,25 +112,61 @@
                         <Label Text="➕ Add New Device" 
                                FontSize="18" 
                                FontAttributes="Bold" />
+                               
+                        <!-- Device Scanning Section -->
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="🔍 Scan Device Information" 
+                                   FontSize="14" 
+                                   FontAttributes="Bold" 
+                                   TextColor="{AppThemeBinding Light=#007acc, Dark=LightBlue}" />
+                            
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                <Entry Grid.Column="0"
+                                       Text="{Binding ScanDeviceInput}" 
+                                       Placeholder="Enter hostname or IP address to scan device..."
+                                       ReturnCommand="{Binding ScanDeviceCommand}" />
+                                
+                                <Button Grid.Column="1"
+                                        Text="Scan"
+                                        Command="{Binding ScanDeviceCommand}"
+                                        IsEnabled="{Binding IsScanning, Converter={StaticResource InvertedBoolConverter}}"
+                                        BackgroundColor="{StaticResource Primary}"
+                                        TextColor="White"
+                                        WidthRequest="80"/>
+                            </Grid>
+                            
+                            <!-- Scan Status -->
+                            <StackLayout IsVisible="{Binding IsScanStatusVisible}" Orientation="Horizontal" HorizontalOptions="Center">
+                                <ActivityIndicator IsRunning="{Binding IsScanning}" 
+                                                   IsVisible="{Binding IsScanning}" 
+                                                   Color="{StaticResource Primary}" 
+                                                   WidthRequest="20" 
+                                                   HeightRequest="20"/>
+                                <Label Text="{Binding ScanStatusMessage}" 
+                                       TextColor="{AppThemeBinding Light=#007acc, Dark=LightBlue}" 
+                                       VerticalOptions="Center" 
+                                       Margin="10,0,0,0"/>
+                            </StackLayout>
+                        </VerticalStackLayout>
                      
                         <!-- Base Info -->
-                        <Label Text="🔧 Device Details" 
+                        <Label Text="�️ System Information" 
                                FontSize="16" 
                                FontAttributes="Bold" 
                                Margin="0,10,0,0" />
 
-                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="10">
-                            <StackLayout Grid.Column="0">
-                                <Label Text="Host Name:" />
-                                <Entry Text="{Binding Hostname}" Placeholder="Hostname" />
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                            <StackLayout Grid.Row="0" Grid.Column="0">
+                                <Label Text="Computer Name:" />
+                                <Entry Text="{Binding Hostname}" Placeholder="Computer Name" />
                             </StackLayout>
                             <StackLayout Grid.Row="0" Grid.Column="1">
                                 <Label Text="Manufacturer:" />
-                                <Entry Text="{Binding Manufacturer}" Placeholder="Manufacturer" />
+                                <Entry Text="{Binding Manufacturer}" Placeholder="Dell, HP, Lenovo, etc." />
                             </StackLayout>
                             <StackLayout Grid.Row="1" Grid.Column="0">
                                 <Label Text="Model:" />
-                                <Entry Text="{Binding Model}" Placeholder="Model" />
+                                <Entry Text="{Binding Model}" Placeholder="OptiPlex 7090, EliteBook, etc." />
                             </StackLayout>
                             <StackLayout Grid.Row="1" Grid.Column="1">
                                 <Label Text="Serial Number:" />
@@ -138,57 +174,152 @@
                             </StackLayout>
                             <StackLayout Grid.Row="2" Grid.Column="0">
                                 <Label Text="Asset Tag:" />
-                                <Entry Text="{Binding Asset_tag}" Placeholder="Asset tag" />
+                                <Entry Text="{Binding Asset_tag}" Placeholder="Asset Tag" />
                             </StackLayout>
                             <StackLayout Grid.Row="2" Grid.Column="1">
-                                <Label Text="Equipment Group:" />
-                                <Entry Text="{Binding Equipment_group}" Placeholder="Equipment Group" />
-                            </StackLayout>
-                            <StackLayout Grid.Row="3" Grid.Column="0">
-                                <Label Text="CPU Info:" />
-                                <Entry Text="{Binding Cpu_info}" Placeholder="CPU Info" />
-                            </StackLayout>
-                            <StackLayout Grid.Row="3" Grid.Column="1">
-                                <Label Text="Total RAM:" />
-                                <Entry Text="{Binding Total_ram_gb}" Placeholder="Total RAM" Keyboard="Numeric" />
-                            </StackLayout>
-                            <StackLayout Grid.Row="4" Grid.Column="0">
-                                <Label Text="RAM Type:" />
-                                <Entry Text="{Binding Ram_type}" Placeholder="RAM Type" />
-                            </StackLayout>
-                            <StackLayout Grid.Row="4" Grid.Column="1">
-                                <Label Text="HDD Size:" />
-                                <Entry Text="{Binding Storage_info}" Placeholder="HDD Size" />
-                            </StackLayout>
-                            <StackLayout Grid.Row="5" Grid.Column="0">
                                 <Label Text="BIOS Version:" />
                                 <Entry Text="{Binding Bios_version}" Placeholder="BIOS Version" />
                             </StackLayout>
-                            <StackLayout Grid.Row="5" Grid.Column="1">
-                                <Label Text="OS Name:" />
-                                <Entry Text="{Binding Os_name}" Placeholder="OS Name" />
+                            <StackLayout Grid.Row="3" Grid.Column="0">
+                                <Label Text="Processor:" />
+                                <Entry Text="{Binding Cpu_info}" Placeholder="Intel i7, AMD Ryzen, etc." />
                             </StackLayout>
-                            <StackLayout Grid.Row="6" Grid.Column="0">
-                                <Label Text="OS Version:" />
-                                <Entry Text="{Binding Os_version}" Placeholder="OS Version" />
-                            </StackLayout>
-                            <StackLayout Grid.Row="6" Grid.Column="1">
-                                <Label Text="OS Architecture:" />
-                                <Entry Text="{Binding Os_architecture}" Placeholder="OS Architecture" />
-                            </StackLayout>
-                            <StackLayout Grid.Row="7" Grid.Column="0">
-                                <Label Text="Device Status:" />
-                                <Picker
-                                        ItemsSource="{Binding device_status_options}" 
-                                        SelectedItem="{Binding Device_status, Mode=TwoWay}" />
-                            </StackLayout>
-                            <StackLayout Grid.Row="7" Grid.Column="1">
+                            <StackLayout Grid.Row="3" Grid.Column="1">
                                 <Label Text="Device Type:" />
-                                <Picker 
-                                        ItemsSource="{Binding device_type_options}" 
+                                <Picker ItemsSource="{Binding device_type_options}" 
                                         SelectedItem="{Binding SelectedDeviceType, Mode=TwoWay}" />
                             </StackLayout>
                         </Grid>
+
+                        <!-- Operating System Information -->
+                        <Label Text="Operating System" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               Margin="0,15,0,0" />
+
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                            <StackLayout Grid.Row="0" Grid.Column="0">
+                                <Label Text="Operating System:" />
+                                <Entry Text="{Binding Os_name}" Placeholder="Windows 11 Pro, Windows 10, etc." />
+                            </StackLayout>
+                            <StackLayout Grid.Row="0" Grid.Column="1">
+                                <Label Text="OS Version:" />
+                                <Entry Text="{Binding Os_version}" Placeholder="22H2, 21H2, etc." />
+                            </StackLayout>
+                            <StackLayout Grid.Row="1" Grid.Column="0">
+                                <Label Text="OS Architecture:" />
+                                <Entry Text="{Binding Os_architecture}" Placeholder="x64, x86" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="1" Grid.Column="1">
+                                <Label Text="Install Date:" />
+                                <DatePicker Date="{Binding Os_install_date}" Format="yyyy-MM-dd" />
+                            </StackLayout>
+                        </Grid>
+
+                        <!-- Memory Information -->
+                        <Label Text="Memory Information" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               Margin="0,15,0,0" />
+
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                            <StackLayout Grid.Row="0" Grid.Column="0">
+                                <Label Text="Total RAM (GB):" />
+                                <Entry Text="{Binding Total_ram_gb}" Placeholder="8, 16, 32, etc." Keyboard="Numeric" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="0" Grid.Column="1">
+                                <Label Text="RAM Type:" />
+                                <Entry Text="{Binding Ram_type}" Placeholder="DDR4, DDR5, etc." />
+                            </StackLayout>
+                            <StackLayout Grid.Row="1" Grid.Column="0">
+                                <Label Text="RAM Speed:" />
+                                <Entry Text="{Binding Ram_speed}" Placeholder="3200 MHz, 2666 MHz, etc." />
+                            </StackLayout>
+                            <StackLayout Grid.Row="1" Grid.Column="1">
+                                <Label Text="RAM Manufacturer:" />
+                                <Entry Text="{Binding Ram_manufacturer}" Placeholder="Corsair, Kingston, etc." />
+                            </StackLayout>
+                        </Grid>
+
+                        <!-- Storage Information -->
+                        <Label Text="Storage Information" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               Margin="0,15,0,0" />
+
+                        <!-- Primary Storage Drive -->
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="Primary Storage Drive" 
+                                    FontSize="14" 
+                                    FontAttributes="Bold" />
+                                    
+                            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                                <StackLayout Grid.Column="0">
+                                    <Label Text="Primary Storage:" />
+                                    <Entry Text="{Binding Storage_info}" Placeholder="500GB SSD, 1TB HDD, etc." />
+                                </StackLayout>
+                                <StackLayout Grid.Column="1">
+                                    <Label Text="Storage Type:" />
+                                    <Entry Text="{Binding Storage_type}" Placeholder="SSD, HDD, NVMe" />
+                                </StackLayout>
+                                <StackLayout Grid.Column="2">
+                                    <Label Text="Storage Model:" />
+                                    <Entry Text="{Binding Storage_model}" Placeholder="Samsung 980 Pro, WD Blue, etc." />
+                                </StackLayout>
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <!-- Additional Storage Drives -->
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <Label Grid.Column="0" 
+                                   Text="Additional Storage Drives" 
+                                   FontSize="14" 
+                                   FontAttributes="Bold" 
+                                   VerticalOptions="Center" />
+                            <Button Grid.Column="1" 
+                                    Text="Add Drive" 
+                                    Command="{Binding AddStorageDriveCommand}"
+                                    IsEnabled="{Binding CanAddMoreDrives}"
+                                    BackgroundColor="{StaticResource Primary}"
+                                    TextColor="White"
+                                    WidthRequest="120" />
+                        </Grid>
+
+                        <!-- Additional Drives List -->
+                        <CollectionView ItemsSource="{Binding AdditionalDrives}" 
+                                      IsVisible="{Binding HasAdditionalDrives}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame BackgroundColor="{AppThemeBinding Light=#FFF8DC, Dark=#2F2F1F}" 
+                                           Padding="10" 
+                                           CornerRadius="5" 
+                                           Margin="0,5">
+                                        <Grid ColumnDefinitions="*,*,*,Auto" ColumnSpacing="10">
+                                            <StackLayout Grid.Column="0">
+                                                <Label Text="Drive Name:" FontSize="12" />
+                                                <Entry Text="{Binding DriveName}" Placeholder="Drive C:, Data Drive, etc." />
+                                            </StackLayout>
+                                            <StackLayout Grid.Column="1">
+                                                <Label Text="Capacity:" FontSize="12" />
+                                                <Entry Text="{Binding DriveCapacity}" Placeholder="500GB, 1TB, 2TB, etc." />
+                                            </StackLayout>
+                                            <StackLayout Grid.Column="2">
+                                                <Label Text="Type/Model:" FontSize="12" />
+                                                <Entry Text="{Binding DriveModel}" Placeholder="SSD Samsung 980, HDD WD Blue, etc." />
+                                            </StackLayout>
+                                            <Button Grid.Column="3" 
+                                                    Text="Remove" 
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveStorageDriveCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    BackgroundColor="Red"
+                                                    TextColor="White"
+                                                    WidthRequest="60"
+                                                    VerticalOptions="End" />
+                                        </Grid>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
                         
                         <!-- Location Fields -->
                         <Label Text="📍 Location Information" 
@@ -229,46 +360,130 @@
                                FontAttributes="Bold" 
                                Margin="0,10,0,0" />
 
-                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="*,*,*,*" ColumnSpacing="10" RowSpacing="10">
-                            <StackLayout Grid.Row="0" Grid.Column="0">
-                                <Label Text="IP Address:" />
-                                <Entry Text="{Binding PrimaryIp}" Placeholder="192.168.x.x" Keyboard="Numeric" />
+                        <!-- Primary Network Adapter -->
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="Primary Network Adapter" 
+                                    FontSize="14" 
+                                    FontAttributes="Bold" />
+                                    
+                            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                                <StackLayout Grid.Column="0">
+                                    <Label Text="Primary IP Address:" />
+                                    <Entry Text="{Binding PrimaryIp}" Placeholder="192.168.x.x" Keyboard="Numeric" />
+                                </StackLayout>
+                                <StackLayout Grid.Column="1">
+                                    <Label Text="Primary MAC Address:" />
+                                    <Entry Text="{Binding PrimaryMac}" Placeholder="XX:XX:XX:XX:XX:XX">
+                                        <Entry.Behaviors>
+                                            <behaviors:MacAddressBehavior />
+                                        </Entry.Behaviors>
+                                    </Entry>
+                                </StackLayout>
+                                <StackLayout Grid.Column="2">
+                                    <Label Text="Primary Subnet Mask:" />
+                                    <Entry Text="{Binding PrimarySubnet}" Placeholder="255.255.255.0" Keyboard="Numeric" />
+                                </StackLayout>
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <!-- DNS Settings -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <StackLayout Grid.Column="0">
+                                <Label Text="Primary DNS:" />
+                                <Entry Text="{Binding PrimaryDns}" Placeholder="8.8.8.8" Keyboard="Numeric" />
                             </StackLayout>
-                            <StackLayout Grid.Row="0" Grid.Column="1">
-                                <Label Text="Primary MAC Address:" />
-                                <Entry Text="{Binding PrimaryMac}" Placeholder="XX:XX:XX:XX:XX:XX" />
+                            <StackLayout Grid.Column="1">
+                                <Label Text="Secondary DNS:" />
+                                <Entry Text="{Binding SecondaryDns}" Placeholder="8.8.4.4" Keyboard="Numeric" />
                             </StackLayout>
-                            <StackLayout Grid.Row="0" Grid.Column="2">
-                                <Label Text="Subnet Mask:" />
-                                <Entry Text="{Binding Subnet_masks}" Placeholder="255.255.255.0" Keyboard="Numeric" />
-                            </StackLayout>
-                            <StackLayout Grid.Row="1" Grid.Column="0">
-                                <Label Text="Secondary IPs:" />
-                                <Entry Text="{Binding Secondary_ips}" Placeholder="192.168.x.x" Keyboard="Numeric" />
-                            </StackLayout>
-                            <StackLayout Grid.Row="1" Grid.Column="1">
-                                <Label Text="Secondary MACs:" />
-                                <Entry Text="{Binding Secondary_macs}" Placeholder="XX:XX:XX:XX:XX:XX" />
-                            </StackLayout>
-                            <StackLayout Grid.Row="1" Grid.Column="2">
-                                <Label Text="DNS:" />
-                                <Entry Text="{Binding Dns_servers}" Placeholder="192.168.x.x" Keyboard="Numeric" />
-                            </StackLayout>
-                            <StackLayout Grid.Row="2" Grid.Column="0">
-                                <Label Text="Subnet Mask:" />
-                                <Entry Text="{Binding Subnet_masks}" Placeholder="255.255.255.0" Keyboard="Numeric" />
-                            </StackLayout>
-                            <StackLayout Grid.Row="2" Grid.Column="1">
+                        </Grid>
+
+                        <!-- Domain Settings -->
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <StackLayout Grid.Column="0">
                                 <Label Text="Domain:" />
-                                <Entry Text="{Binding Domain_name}" Placeholder="Domain" Keyboard="Default" />
+                                <Entry Text="{Binding Domain_name}" Placeholder="company.local" />
                             </StackLayout>
-                            <StackLayout Grid.Row="2" Grid.Column="2">
-                                <Label Text="Workgroup:" />
-                                <Entry Text="{Binding Workgroup}" Placeholder="Workgroup" Keyboard="Default" />
-                            </StackLayout>
-                            <StackLayout Grid.Row="3" Grid.Column="0">
+                            <StackLayout Grid.Column="1" VerticalOptions="End">
                                 <Label Text="Domain Joined:" />
                                 <Switch IsToggled="{Binding Is_domain_joined}" />
+                            </StackLayout>
+                        </Grid>
+
+                        <!-- Additional Network Adapters -->
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <Label Grid.Column="0" 
+                                   Text="Additional Network Adapters" 
+                                   FontSize="14" 
+                                   FontAttributes="Bold" 
+                                   VerticalOptions="Center" />
+                            <Button Grid.Column="1" 
+                                    Text="➕ Add Adapter" 
+                                    Command="{Binding AddNetworkAdapterCommand}"
+                                    IsEnabled="{Binding CanAddMoreAdapters}"
+                                    BackgroundColor="{StaticResource Primary}"
+                                    TextColor="White"
+                                    WidthRequest="120" />
+                        </Grid>
+
+                        <!-- Additional Adapters List -->
+                        <CollectionView ItemsSource="{Binding AdditionalAdapters}" 
+                                      IsVisible="{Binding HasAdditionalAdapters}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,*,*,Auto" ColumnSpacing="10">
+                                        <StackLayout Grid.Column="0">
+                                            <Label Text="IP Address:" FontSize="12" />
+                                            <Entry Text="{Binding IpAddress}" Placeholder="192.168.x.x" Keyboard="Numeric" />
+                                        </StackLayout>
+                                        <StackLayout Grid.Column="1">
+                                            <Label Text="MAC Address:" FontSize="12" />
+                                            <Entry Text="{Binding MacAddress}" Placeholder="XX:XX:XX:XX:XX:XX">
+                                                <Entry.Behaviors>
+                                                    <behaviors:MacAddressBehavior />
+                                                </Entry.Behaviors>
+                                            </Entry>
+                                        </StackLayout>
+                                        <StackLayout Grid.Column="2">
+                                            <Label Text="Subnet Mask:" FontSize="12" />
+                                            <Entry Text="{Binding SubnetMask}" Placeholder="255.255.255.0" Keyboard="Numeric" />
+                                        </StackLayout>
+                                        <Button Grid.Column="3" 
+                                                Text="❌" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveNetworkAdapterCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="Red"
+                                                TextColor="White"
+                                                WidthRequest="40"
+                                                VerticalOptions="End" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <!-- Device Status & Administrative Info -->
+                        <Label Text="Device Status and Management" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               Margin="0,15,0,0" />
+
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                            <StackLayout Grid.Row="0" Grid.Column="0">
+                                <Label Text="Device Status:" />
+                                <Picker ItemsSource="{Binding device_status_options}" 
+                                        SelectedItem="{Binding Device_status, Mode=TwoWay}" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="0" Grid.Column="1">
+                                <Label Text="Equipment Group:" />
+                                <Entry Text="{Binding Equipment_group}" Placeholder="IT, Production, Office, etc." />
+                            </StackLayout>
+                            <StackLayout Grid.Row="1" Grid.Column="0">
+                                <Label Text="Discovery Method:" />
+                                <Entry Text="{Binding Discovery_method}" Placeholder="Manual, Script, Network Scan, etc." />
+                            </StackLayout>
+                            <StackLayout Grid.Row="1" Grid.Column="1">
+                                <Label Text="Last Discovered:" />
+                                <DatePicker Date="{Binding Last_discovered}" Format="yyyy-MM-dd" />
                             </StackLayout>
                         </Grid>
 
@@ -281,7 +496,7 @@
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                             <StackLayout Grid.Column="0">
                                 <Label Text="Web Link:" />
-                                <Entry Text="{Binding Web_interface_url}" Placeholder="Web Interface URL" />
+                                <Entry Text="{Binding WebInterfaceUrl}" Placeholder="Web Interface URL" />
                             </StackLayout>
                         </Grid>
 
@@ -310,12 +525,12 @@
                         </Grid>
 
                         <!-- Date Fields -->
-                        <Label Text="📅 Date Information" 
+                        <Label Text="Administrative Dates" 
                                FontSize="16" 
                                FontAttributes="Bold" 
-                               Margin="0,10,0,0" />
+                               Margin="0,15,0,0" />
 
-                        <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="10">
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
                             <StackLayout Grid.Column="0">
                                 <Label Text="Purchase Date:" />
                                 <DatePicker Date="{Binding PurchaseDate}" Format="yyyy-MM-dd" />
@@ -328,15 +543,27 @@
                                 <Label Text="Warranty Date:" />
                                 <DatePicker Date="{Binding WarrantyDate}" Format="yyyy-MM-dd" />
                             </StackLayout>
-                            <StackLayout Grid.Column="3">
-                                <Label Text="Updated:" />
-                                <DatePicker Date="{Binding Updated_at}" Format="yyyy-MM-dd" />
-                            </StackLayout>
-                            <StackLayout Grid.Column="4">
-                                <Label Text="Last Seen:" />
-                                <DatePicker Date="{Binding Last_discovered}" Format="yyyy-MM-dd" />
-                            </StackLayout>
                         </Grid>
+                        
+                        <!-- Change Reason Section -->
+                        <Frame BackgroundColor="{AppThemeBinding Light=#E6F3FF, Dark=#1E3A5F}" 
+                               Padding="10" 
+                               CornerRadius="5"
+                               Margin="0,10,0,0"
+                               IsVisible="{Binding IsChangeReasonVisible}">
+                            <StackLayout>
+                                <Label Text="📝 Change Reason" 
+                                       FontAttributes="Bold" 
+                                       FontSize="14" />
+                                <Label Text="Required for device edits" 
+                                       FontSize="12" 
+                                       TextColor="Gray"
+                                       IsVisible="{Binding IsChangeReasonRequired}" />
+                                <Entry Text="{Binding ChangeReason}" 
+                                       Placeholder="Enter reason for this change..."
+                                       IsEnabled="{Binding IsChangeReasonRequired}" />
+                            </StackLayout>
+                        </Frame>
                         
                         <!-- Action Buttons -->
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,10,0,0">
@@ -359,6 +586,101 @@
                                 BackgroundColor="Orange"
                                 TextColor="White"
                                 Margin="0,10,0,0" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Bulk Device Scan Section -->
+                <Frame BackgroundColor="{AppThemeBinding Light=#F0F8FF, Dark=#1C1C2A}" 
+                       Padding="15" 
+                       CornerRadius="10"
+                       IsVisible="{Binding IsNotEditMode}"
+                       Margin="0,10,0,0">
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="📋 Bulk Device Scan" 
+                               FontSize="18" 
+                               FontAttributes="Bold" 
+                               TextColor="DarkBlue" />
+                        
+                        <Label Text="Scan multiple devices from a text file (one hostname or IP per line). All devices will be added as 'PC' type with 'Active' status."
+                               FontSize="14"
+                               TextColor="Gray" />
+                        
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <Entry Grid.Column="0"
+                                   Text="{Binding BulkScanFilePath}" 
+                                   Placeholder="Select a .txt file with hostnames/IPs..."
+                                   IsReadOnly="True" />
+                            
+                            <Button Grid.Column="1"
+                                    Text="📁 Browse"
+                                    Command="{Binding BrowseBulkScanFileCommand}"
+                                    BackgroundColor="{StaticResource Secondary}"
+                                    TextColor="White"
+                                    WidthRequest="80" />
+                        </Grid>
+                        
+                        <!-- Change Reason for Bulk Scan -->
+                        <Frame BackgroundColor="{AppThemeBinding Light=#FFFACD, Dark=#2F2F1F}" 
+                               Padding="10" 
+                               CornerRadius="5"
+                               IsVisible="{Binding IsBulkScanChangeReasonRequired}">
+                            <StackLayout>
+                                <Label Text="Change Reason (Required for bulk scan):" 
+                                       FontSize="12" 
+                                       TextColor="Gray" />
+                                <Entry Text="{Binding BulkScanChangeReason}" 
+                                       Placeholder="Enter reason for bulk device additions..."
+                                       IsEnabled="{Binding IsBulkScanChangeReasonRequired}" />
+                            </StackLayout>
+                        </Frame>
+                        
+                        <!-- Bulk Scan Actions -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button Grid.Column="0" 
+                                    Text="🚀 Start Bulk Scan" 
+                                    Command="{Binding StartBulkScanCommand}"
+                                    BackgroundColor="DarkBlue"
+                                    TextColor="White"
+                                    IsEnabled="{Binding CanStartBulkScan}" />
+                            
+                            <Button Grid.Column="1" 
+                                    Text="📄 View Results" 
+                                    Command="{Binding ViewBulkScanResultsCommand}"
+                                    BackgroundColor="DarkGreen"
+                                    TextColor="White"
+                                    IsEnabled="{Binding HasBulkScanResults}" />
+                        </Grid>
+                        
+                        <!-- Bulk Scan Status -->
+                        <StackLayout IsVisible="{Binding IsBulkScanStatusVisible}" 
+                                     Orientation="Horizontal" 
+                                     HorizontalOptions="Center">
+                            <ActivityIndicator IsRunning="{Binding IsBulkScanning}" 
+                                               IsVisible="{Binding IsBulkScanning}" 
+                                               Color="DarkBlue" 
+                                               WidthRequest="20" 
+                                               HeightRequest="20"/>
+                            <Label Text="{Binding BulkScanStatusMessage}" 
+                                   TextColor="DarkBlue" 
+                                   VerticalOptions="Center" 
+                                   Margin="10,0,0,0"/>
+                        </StackLayout>
+                        
+                        <!-- Bulk Scan Results Summary -->
+                        <Frame IsVisible="{Binding HasBulkScanResults}"
+                               BackgroundColor="{AppThemeBinding Light=#F0FFF0, Dark=#0F2F0F}"
+                               Padding="10"
+                               CornerRadius="5">
+                            <StackLayout>
+                                <Label Text="📊 Last Bulk Scan Results:" 
+                                       FontSize="14" 
+                                       FontAttributes="Bold" 
+                                       TextColor="DarkGreen" />
+                                <Label Text="{Binding BulkScanResultsSummary}" 
+                                       FontSize="12" 
+                                       TextColor="DarkGreen" />
+                            </StackLayout>
+                        </Frame>
                     </VerticalStackLayout>
                 </Frame>
 
@@ -496,7 +818,11 @@
                             </StackLayout>
                             <StackLayout Grid.Row="0" Grid.Column="1">
                                 <Label Text="Primary MAC Address:" />
-                                <Entry Text="{Binding EditPrimaryMac}" Placeholder="XX:XX:XX:XX:XX:XX" />
+                                <Entry Text="{Binding EditPrimaryMac}" Placeholder="XX:XX:XX:XX:XX:XX">
+                                    <Entry.Behaviors>
+                                        <behaviors:MacAddressBehavior />
+                                    </Entry.Behaviors>
+                                </Entry>
                             </StackLayout>
                             <StackLayout Grid.Row="0" Grid.Column="2">
                                 <Label Text="Subnet Mask:" />
@@ -637,86 +963,6 @@
                     CornerRadius="8">
                     <Label Text="{Binding StatusMessage}" TextColor="Black" FontAttributes="Bold" />
                 </Frame>
-                <!-- Device Lists Section -->
-                <mpower:TabView>
-                    <mpower:TabViewItem Header="NetOps">
-                        <Entry Text="{Binding NetOpsSearchQuery}" Placeholder="Search netop devices..." />
-                        <CollectionView ItemsSource="{Binding FilteredNetOpsDevices}">
-                            <CollectionView.ItemsLayout>
-                                <GridItemsLayout Orientation="Vertical" Span="10" />
-                            </CollectionView.ItemsLayout>
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate>
-                                    <Frame BackgroundColor="{AppThemeBinding Light=#FFF8DC, Dark=#2F2F1F}" Padding="5" Margin="5" HasShadow="False" BorderColor="LightGray">
-                                        <VerticalStackLayout Grid.Column="0">
-                                            <Label Text="{Binding Hostname}" FontAttributes="Bold" />
-                                            <Label Text="{Binding PrimaryIp}" FontSize="12" TextColor="Gray" />
-                                            <Label Text="{Binding FullLocation}" FontSize="12" TextColor="Gray" />
-                                        </VerticalStackLayout>
-                                    </Frame>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                            <CollectionView.HeightRequest>300</CollectionView.HeightRequest>
-                        </CollectionView>
-                    </mpower:TabViewItem>
-                    <mpower:TabViewItem Header="Printers">
-                        <Entry Text="{Binding PrintersSearchQuery}" Placeholder="Search printers..." />
-                        <CollectionView ItemsSource="{Binding FilteredPrinters}">
-                            <CollectionView.ItemsLayout>
-                                <GridItemsLayout Orientation="Vertical" Span="10" />
-                            </CollectionView.ItemsLayout>
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate>
-                                    <Frame BackgroundColor="{AppThemeBinding Light=#FFF8DC, Dark=#2F2F1F}" Padding="5" Margin="5" HasShadow="False" BorderColor="LightGray">
-                                        <VerticalStackLayout Grid.Column="0">
-                                            <Label Text="{Binding Hostname}" FontAttributes="Bold" />
-                                            <Label Text="{Binding PrimaryIp}" FontSize="12" TextColor="Gray" />
-                                            <Label Text="{Binding FullLocation}" FontSize="12" TextColor="Gray" />
-                                        </VerticalStackLayout>
-                                    </Frame>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-                    </mpower:TabViewItem>
-                    <mpower:TabViewItem Header="Cameras">
-                        <Entry Text="{Binding CamerasSearchQuery}" Placeholder="Search cameras..." />
-                        <CollectionView ItemsSource="{Binding FilteredCameras}">
-                            <CollectionView.ItemsLayout>
-                                <GridItemsLayout Orientation="Vertical" Span="10" />
-                            </CollectionView.ItemsLayout>
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate>
-                                    <Frame BackgroundColor="{AppThemeBinding Light=#FFF8DC, Dark=#2F2F1F}" Padding="5" Margin="5" HasShadow="False" BorderColor="LightGray">
-                                        <VerticalStackLayout Grid.Column="0">
-                                            <Label Text="{Binding Hostname}" FontAttributes="Bold" />
-                                            <Label Text="{Binding PrimaryIp}" FontSize="12" TextColor="Gray" />
-                                            <Label Text="{Binding FullLocation}" FontSize="12" TextColor="Gray" />
-                                        </VerticalStackLayout>
-                                    </Frame>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-                    </mpower:TabViewItem>
-                    <mpower:TabViewItem Header="Others">
-                        <Entry Text="{Binding OthersSearchQuery}" Placeholder="Search others..." />
-                        <CollectionView ItemsSource="{Binding FilteredOthers}">
-                            <CollectionView.ItemsLayout>
-                                <GridItemsLayout Orientation="Vertical" Span="10" />
-                            </CollectionView.ItemsLayout>
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate>
-                                    <Frame BackgroundColor="{AppThemeBinding Light=#FFF8DC, Dark=#2F2F1F}" Padding="5" Margin="5" HasShadow="False" BorderColor="LightGray">
-                                        <VerticalStackLayout Grid.Column="0">
-                                            <Label Text="{Binding Hostname}" FontAttributes="Bold" />
-                                            <Label Text="{Binding PrimaryIp}" FontSize="12" TextColor="Gray" />
-                                            <Label Text="{Binding FullLocation}" FontSize="12" TextColor="Gray" />
-                                        </VerticalStackLayout>
-                                    </Frame>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-                    </mpower:TabViewItem>
-                </mpower:TabView>
 
                 <ActivityIndicator 
                     IsVisible="{Binding IsBusy}" 

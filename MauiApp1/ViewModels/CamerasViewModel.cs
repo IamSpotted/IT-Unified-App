@@ -277,7 +277,7 @@ public partial class CamerasViewModel : FilterableBaseViewModel<Camera>, ILoadab
 
                 case "ℹ️ Show Details":
                     // Now query SolarWinds status
-                    var status = await GetSolarWindsStatus(camera);
+                    var status = GetSolarWindsStatus(camera);
                     var statusEmoji = status?.IsOnline == true ? "🟢" : "🔴";
                     var statusText = status?.IsOnline == true ? "Online" : "Offline";
                     var responseTime = status?.ResponseTimeMs > 0 ? $" ({status.ResponseTimeMs}ms)" : "";
@@ -456,7 +456,7 @@ public partial class CamerasViewModel : FilterableBaseViewModel<Camera>, ILoadab
     }
 
     // Method to query SolarWinds for camera device status
-    private async Task<DeviceStatus?> GetSolarWindsStatus(Camera camera)
+    private DeviceStatus? GetSolarWindsStatus(Camera camera)
     {
         try
         {
