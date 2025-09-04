@@ -1,12 +1,10 @@
 using System.Reflection;
+using MauiApp1.Services;
 
 namespace MauiApp1.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    /// <summary>
-    /// Automatically registers services based on marker interfaces
-    /// </summary>
     public static IServiceCollection AddAutoDiscoveredServices(this IServiceCollection services)
     {
         var assembly = Assembly.GetExecutingAssembly();
@@ -28,6 +26,10 @@ public static class ServiceCollectionExtensions
         
         // Register generic filter service
         services.AddTransient(typeof(IFilterService<>), typeof(FilterService<>));
+        
+        // Explicitly register additional services
+        // Duplicate detection services temporarily disabled
+        // services.AddTransient<IDuplicateResolutionDialogService, MauiApp1.Services.DuplicateResolutionDialogService>();
         
         return services;
     }
