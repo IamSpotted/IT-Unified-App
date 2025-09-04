@@ -27,11 +27,55 @@ public class Device : IFilterable
     public string? OsName { get; set; }
     public string? OSVersion { get; set; }
     public string? OsArchitecture { get; set; }
-    public string? SecondaryIps { get; set; }
-    public string? SecondaryMacs { get; set; }
-    public string? DnsServers { get; set; }
-    public string? DefaultGateways { get; set; }
-    public string? SubnetMasks { get; set; }
+    public DateTime? OsInstallDate { get; set; }
+    
+    // Memory Information (Enhanced)
+    public string? RamSpeed { get; set; }
+    public string? RamManufacturer { get; set; }
+    
+    // Primary Storage Information (Enhanced)
+    public string? StorageType { get; set; }
+    public string? StorageModel { get; set; }
+    
+    // Additional Storage Drives (3 sets)
+    public string? Drive2Name { get; set; }
+    public string? Drive2Capacity { get; set; }
+    public string? Drive2Type { get; set; }
+    public string? Drive2Model { get; set; }
+    
+    public string? Drive3Name { get; set; }
+    public string? Drive3Capacity { get; set; }
+    public string? Drive3Type { get; set; }
+    public string? Drive3Model { get; set; }
+    
+    public string? Drive4Name { get; set; }
+    public string? Drive4Capacity { get; set; }
+    public string? Drive4Type { get; set; }
+    public string? Drive4Model { get; set; }
+    
+    // Primary Network Interface (Enhanced)
+    public string? PrimarySubnet { get; set; }
+    public string? PrimaryDns { get; set; }
+    public string? SecondaryDns { get; set; }
+    
+    // Network Interface 2
+    public string? Nic2Name { get; set; }
+    public string? Nic2Ip { get; set; }
+    public string? Nic2Mac { get; set; }
+    public string? Nic2Subnet { get; set; }
+    
+    // Network Interface 3
+    public string? Nic3Name { get; set; }
+    public string? Nic3Ip { get; set; }
+    public string? Nic3Mac { get; set; }
+    public string? Nic3Subnet { get; set; }
+    
+    // Network Interface 4
+    public string? Nic4Name { get; set; }
+    public string? Nic4Ip { get; set; }
+    public string? Nic4Mac { get; set; }
+    public string? Nic4Subnet { get; set; }
+    
     public string? DiscoveryMethod { get; set; }
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }

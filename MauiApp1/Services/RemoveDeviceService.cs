@@ -8,56 +8,53 @@ namespace MauiApp1.Services
     public class RemoveDeviceService : IRemoveDeviceService
     {
         private readonly ILogger<RemoveDeviceService> _logger;
-        private readonly SecureCredentialsService _credentialsService;
+        private readonly IDatabaseService _databaseService;
 
-        public RemoveDeviceService(ILogger<RemoveDeviceService> logger, SecureCredentialsService credentialsService)
+        public RemoveDeviceService(ILogger<RemoveDeviceService> logger, IDatabaseService databaseService)
         {
             _logger = logger;
-            _credentialsService = credentialsService;
+            _databaseService = databaseService;
         }
 
-        public async Task<bool> RemoveDeviceAsync(string Hostname)
+        public async Task<bool> RemoveDeviceAsync(string hostname)
+        {
+            return await RemoveDeviceAsync(hostname, $"Device '{hostname}' deleted via Database Admin interface");
+        }
+
+        public async Task<bool> RemoveDeviceAsync(string hostname, string deletionReason)
         {
             try
             {
-                var credentials = await _credentialsService.GetDatabaseCredentialsAsync();
-                if (credentials == null)
+                // First, get the device by hostname to find the device ID
+                var devices = await _databaseService.SearchDevicesAsync(hostname);
+                var device = devices?.FirstOrDefault(d => d.Hostname.Equals(hostname, StringComparison.OrdinalIgnoreCase));
+                
+                if (device == null)
                 {
-                    _logger.LogError("No database credentials available for RemoveDevice");
+                    _logger.LogWarning("Device with hostname '{hostname}' not found for removal", hostname);
                     return false;
                 }
 
-                var connectionString = new SqlConnectionStringBuilder
-                {
-                    DataSource = credentials.Server,
-                    InitialCatalog = credentials.Database,
-                    ConnectTimeout = 30,
-                    TrustServerCertificate = true,
-                    Encrypt = false,
-                    IntegratedSecurity = credentials.UseWindowsAuthentication
-                };
+                // Use the simple DeleteDeviceAsync method - INSTEAD OF DELETE trigger will handle archiving
+                // Pass the user-provided deletion reason for proper audit logging
+                var success = await _databaseService.DeleteDeviceAsync(device.device_id, deletionReason);
 
-                if (!credentials.UseWindowsAuthentication)
+                if (success)
                 {
-                    connectionString.UserID = credentials.Username ?? string.Empty;
-                    connectionString.Password = credentials.Password ?? string.Empty;
+                    _logger.LogInformation("Successfully deleted device '{hostname}' (ID: {device_id}) - archived to deleted_devices", 
+                        hostname, device.device_id);
+                }
+                else
+                {
+                    _logger.LogWarning("Failed to delete device '{hostname}' (ID: {device_id})", 
+                        hostname, device.device_id);
                 }
 
-                using var connection = new SqlConnection(connectionString.ConnectionString);
-                await connection.OpenAsync();
-
-                var query = SQLQueryService.RemoveDeviceByHostnameQuery;
-                using var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@hostname", Hostname);
-
-                var rowsAffected = await command.ExecuteNonQueryAsync();
-                _logger.LogInformation("Removed {Hostname} from database", Hostname);
-
-                return rowsAffected > 0;
+                return success;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error removing {Hostname}", Hostname);
+                _logger.LogError(ex, "Error removing device '{hostname}'", hostname);
                 return false;
             }
         }

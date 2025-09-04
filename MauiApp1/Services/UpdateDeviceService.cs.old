@@ -62,25 +62,25 @@ public class UpdateDeviceService : IUpdateDeviceService
                 // Use SqlQueryService.UpdateDeviceQuery - same as other successful operations
                 using var command = new SqlCommand(SQLQueryService.UpdateDeviceQuery, connection, transaction);
                 
-                // Add all parameters matching the UpdateDeviceQuery with correct property names
+                // Add all parameters matching the UpdateDeviceQuery
                 command.Parameters.AddWithValue("@device_id", device.device_id);
                 command.Parameters.AddWithValue("@hostname", device.Hostname);
                 command.Parameters.AddWithValue("@serial_number", device.SerialNumber ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@asset_tag", device.AssetTag ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@domain_name", device.DomainName ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@is_domain_joined", device.IsDomainJoined ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@is_domain_joined", device.IsDomainJoined);
                 command.Parameters.AddWithValue("@manufacturer", device.Manufacturer ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@model", device.Model ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@cpu_info", device.CpuInfo ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@bios_version", device.BiosVersion ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@total_ram_gb", device.TotalRamGb);
-                command.Parameters.AddWithValue("@ram_type", device.RamType ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@ram_speed", device.RamSpeed ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@ram_manufacturer", device.RamManufacturer ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@os_name", device.OsName ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@cpu_info", device.CPUInfo ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@bios_version", device.BIOSVersion ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@total_ram_gb", device.TotalRAMGB ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@ram_type", device.RAMType ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@ram_speed", device.RAMSpeed ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@ram_manufacturer", device.RAMManufacturer ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@os_name", device.OSName ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@os_version", device.OSVersion ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@os_architecture", device.OsArchitecture ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@os_install_date", device.OsInstallDate ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@os_architecture", device.OSArchitecture ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@os_install_date", device.OSInstallDate ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@storage_info", device.StorageInfo ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@storage_type", device.StorageType ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@storage_model", device.StorageModel ?? (object)DBNull.Value);
@@ -96,24 +96,24 @@ public class UpdateDeviceService : IUpdateDeviceService
                 command.Parameters.AddWithValue("@drive4_capacity", device.Drive4Capacity ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@drive4_type", device.Drive4Type ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@drive4_model", device.Drive4Model ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@primary_ip", device.PrimaryIp ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@primary_mac", device.PrimaryMac ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@primary_ip", device.PrimaryIP ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@primary_mac", device.PrimaryMAC ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@primary_subnet", device.PrimarySubnet ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@primary_dns", device.PrimaryDns ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@secondary_dns", device.SecondaryDns ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic2_name", device.Nic2Name ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic2_ip", device.Nic2Ip ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic2_mac", device.Nic2Mac ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic2_subnet", device.Nic2Subnet ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic3_name", device.Nic3Name ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic3_ip", device.Nic3Ip ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic3_mac", device.Nic3Mac ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic3_subnet", device.Nic3Subnet ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic4_name", device.Nic4Name ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic4_ip", device.Nic4Ip ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic4_mac", device.Nic4Mac ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic4_subnet", device.Nic4Subnet ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@web_interface_url", device.WebInterfaceUrl ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@primary_dns", device.PrimaryDNS ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@secondary_dns", device.SecondaryDNS ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic2_name", device.NIC2Name ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic2_ip", device.NIC2IP ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic2_mac", device.NIC2MAC ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic2_subnet", device.NIC2Subnet ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic3_name", device.NIC3Name ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic3_ip", device.NIC3IP ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic3_mac", device.NIC3MAC ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic3_subnet", device.NIC3Subnet ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic4_name", device.NIC4Name ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic4_ip", device.NIC4IP ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic4_mac", device.NIC4MAC ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic4_subnet", device.NIC4Subnet ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@web_interface_url", device.WebInterfaceURL ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@device_status", device.DeviceStatus ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@area", device.Area ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@zone", device.Zone ?? (object)DBNull.Value);
@@ -232,25 +232,25 @@ public class UpdateDeviceService : IUpdateDeviceService
                 // Use SqlQueryService.UpdateDeviceQuery - same as other successful operations
                 using var command = new SqlCommand(SQLQueryService.UpdateDeviceQuery, connection, transaction);
                 
-                // Add all parameters matching the UpdateDeviceQuery with correct property names
+                // Add all parameters matching the UpdateDeviceQuery
                 command.Parameters.AddWithValue("@device_id", device.device_id);
                 command.Parameters.AddWithValue("@hostname", device.Hostname);
                 command.Parameters.AddWithValue("@serial_number", device.SerialNumber ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@asset_tag", device.AssetTag ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@domain_name", device.DomainName ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@is_domain_joined", device.IsDomainJoined ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@is_domain_joined", device.IsDomainJoined);
                 command.Parameters.AddWithValue("@manufacturer", device.Manufacturer ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@model", device.Model ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@cpu_info", device.CpuInfo ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@bios_version", device.BiosVersion ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@total_ram_gb", device.TotalRamGb);
-                command.Parameters.AddWithValue("@ram_type", device.RamType ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@ram_speed", device.RamSpeed ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@ram_manufacturer", device.RamManufacturer ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@os_name", device.OsName ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@cpu_info", device.CPUInfo ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@bios_version", device.BIOSVersion ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@total_ram_gb", device.TotalRAMGB ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@ram_type", device.RAMType ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@ram_speed", device.RAMSpeed ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@ram_manufacturer", device.RAMManufacturer ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@os_name", device.OSName ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@os_version", device.OSVersion ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@os_architecture", device.OsArchitecture ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@os_install_date", device.OsInstallDate ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@os_architecture", device.OSArchitecture ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@os_install_date", device.OSInstallDate ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@storage_info", device.StorageInfo ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@storage_type", device.StorageType ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@storage_model", device.StorageModel ?? (object)DBNull.Value);
@@ -266,24 +266,24 @@ public class UpdateDeviceService : IUpdateDeviceService
                 command.Parameters.AddWithValue("@drive4_capacity", device.Drive4Capacity ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@drive4_type", device.Drive4Type ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@drive4_model", device.Drive4Model ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@primary_ip", device.PrimaryIp ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@primary_mac", device.PrimaryMac ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@primary_ip", device.PrimaryIP ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@primary_mac", device.PrimaryMAC ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@primary_subnet", device.PrimarySubnet ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@primary_dns", device.PrimaryDns ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@secondary_dns", device.SecondaryDns ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic2_name", device.Nic2Name ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic2_ip", device.Nic2Ip ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic2_mac", device.Nic2Mac ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic2_subnet", device.Nic2Subnet ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic3_name", device.Nic3Name ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic3_ip", device.Nic3Ip ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic3_mac", device.Nic3Mac ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic3_subnet", device.Nic3Subnet ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic4_name", device.Nic4Name ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic4_ip", device.Nic4Ip ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic4_mac", device.Nic4Mac ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@nic4_subnet", device.Nic4Subnet ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@web_interface_url", device.WebInterfaceUrl ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@primary_dns", device.PrimaryDNS ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@secondary_dns", device.SecondaryDNS ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic2_name", device.NIC2Name ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic2_ip", device.NIC2IP ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic2_mac", device.NIC2MAC ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic2_subnet", device.NIC2Subnet ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic3_name", device.NIC3Name ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic3_ip", device.NIC3IP ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic3_mac", device.NIC3MAC ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic3_subnet", device.NIC3Subnet ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic4_name", device.NIC4Name ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic4_ip", device.NIC4IP ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic4_mac", device.NIC4MAC ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@nic4_subnet", device.NIC4Subnet ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@web_interface_url", device.WebInterfaceURL ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@device_status", device.DeviceStatus ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@area", device.Area ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@zone", device.Zone ?? (object)DBNull.Value);
@@ -304,8 +304,12 @@ public class UpdateDeviceService : IUpdateDeviceService
                 {
                     await transaction.CommitAsync();
                     
-                    // Audit logging is handled automatically by the UPDATE trigger
-                    _logger.LogInformation("Successfully updated device '{hostname}' (ID: {device_id}) using SqlQueryService with automatic audit logging - User: {User}, Session: {Session}", 
+                    // Log custom audit entry with the provided audit information
+                    await LogCustomAuditEntryAsync(device.device_id, "UPDATE", "DEVICE_UPDATED", "", 
+                        $"Device updated via UpdateDeviceService", applicationUser, changeReason, 
+                        string.IsNullOrEmpty(discoverySessionId) ? (Guid?)null : Guid.Parse(discoverySessionId));
+                    
+                    _logger.LogInformation("Successfully updated device '{hostname}' (ID: {device_id}) using SqlQueryService with audit - User: {User}, Session: {Session}", 
                         device.Hostname, device.device_id, applicationUser, discoverySessionId);
                     
                     return true;

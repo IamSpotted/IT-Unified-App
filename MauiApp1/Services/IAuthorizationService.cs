@@ -33,6 +33,9 @@ public interface IAuthorizationService
     UserRole? SimulatedRole { get; }
     void SetDeveloperMode(bool enabled, UserRole? simulatedRole = null);
     
+    // Testing mode support (TODO: Remove before production)
+    void EnableTestingMode(bool enabled = true);
+    
     // Cache management
     void ClearCache();
     
@@ -49,4 +52,15 @@ public class AuthorizationConfig
     public string DomainName { get; set; } = "PLACEHOLDER_DOMAIN";
     public bool EnableDeveloperMode { get; set; } = true; // Only in debug builds
     public int CacheTimeoutMinutes { get; set; } = 30;
+    
+    /// <summary>
+    /// Approved database servers that users can connect to (in addition to localhost for non-domain)
+    /// Empty list means any server is allowed for domain users with DatabaseAdmin permission
+    /// </summary>
+    public List<string> ApprovedDatabaseServers { get; set; } = new List<string>();
+    
+    /// <summary>
+    /// Whether to enforce the approved database servers list for domain users
+    /// </summary>
+    public bool EnforceApprovedServersOnly { get; set; } = false;
 }

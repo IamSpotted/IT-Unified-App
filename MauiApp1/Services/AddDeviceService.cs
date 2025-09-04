@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Data.SqlClient;
 using MauiApp1.Interfaces;
 using MauiApp1.Models;
-using DeviceModel = MauiApp1.Models.Device;
+
 using System.Data;
 
 namespace MauiApp1.Services;
@@ -11,17 +11,168 @@ public class AddDeviceService : IAddDeviceService
 {
     private readonly ILogger<AddDeviceService> _logger;
     private readonly SecureCredentialsService _credentialsService;
+    private readonly IDatabaseService _databaseService;
 
-    public AddDeviceService(ILogger<AddDeviceService> logger, SecureCredentialsService credentialsService)
+    public AddDeviceService(ILogger<AddDeviceService> logger, SecureCredentialsService credentialsService, IDatabaseService databaseService)
     {
         _logger = logger;
         _credentialsService = credentialsService;
+        _databaseService = databaseService;
     }
 
     /// <summary>
-    /// Adds a new device to the database
+    /// Adds a device with duplicate checking and resolution options
     /// </summary>
-    public async Task<bool> AddDeviceAsync(DeviceModel device, string deviceType = "Other")
+    public async Task<DeviceAddResult> AddDeviceWithDuplicateCheckAsync(Models.Device device, string deviceType = "Other", bool checkDuplicates = true, DuplicateResolutionOptions? resolutionOptions = null)
+    {
+        var result = new DeviceAddResult();
+
+        try
+        {
+            // Sanitize all input data to prevent SQL injection
+            InputSanitizer.SanitizeDevice(device);
+            var sanitizedDeviceType = InputSanitizer.SanitizeDeviceType(deviceType);
+
+            // Required field validation
+            if (string.IsNullOrWhiteSpace(device.Hostname))
+            {
+                result.Success = false;
+                result.Message = "Hostname is required and cannot be empty.";
+                result.ActionTaken = DeviceAddAction.Failed;
+                _logger.LogError("Hostname is required and cannot be empty.");
+                return result;
+            }
+
+            // Check for duplicates if requested
+            if (checkDuplicates)
+            {
+                var duplicateResult = await _databaseService.CheckForDuplicateDevicesAsync(device);
+                
+                if (duplicateResult.HasDuplicates)
+                {
+                    result.DuplicatesFound = true;
+                    result.DuplicateDetectionResult = duplicateResult;
+
+                    // If no resolution options provided, return with duplicate information for user decision
+                    if (resolutionOptions == null)
+                    {
+                        result.Success = false;
+                        result.Message = $"Found {duplicateResult.PotentialDuplicates.Count} potential duplicate(s). User action required.";
+                        result.ActionTaken = DeviceAddAction.Cancelled;
+                        
+                        var duplicateDetails = string.Join(", ", 
+                            duplicateResult.MatchDetails.Take(3).Select(md => 
+                                $"{md.ExistingDevice.Hostname} ({md.MatchReason})"));
+                        
+                        _logger.LogInformation("Duplicate devices found for {Hostname}: {DuplicateDetails}", 
+                            device.Hostname, duplicateDetails);
+                        
+                        return result;
+                    }
+
+                    // Handle the duplicate based on resolution options
+                    switch (resolutionOptions.Action)
+                    {
+                        case DuplicateResolutionAction.Cancel:
+                            result.Success = false;
+                            result.Message = "Device addition cancelled due to duplicates.";
+                            result.ActionTaken = DeviceAddAction.Cancelled;
+                            return result;
+
+                        case DuplicateResolutionAction.CreateNew:
+                            // Proceed with normal addition (ignore duplicates)
+                            _logger.LogInformation("Creating new device despite duplicates for {Hostname} as per user choice", device.Hostname);
+                            break;
+
+                        case DuplicateResolutionAction.UpdateExisting:
+                            if (resolutionOptions.SelectedExistingDevice != null)
+                            {
+                                var updateSuccess = await _databaseService.UpdateDeviceAsync(device, sanitizedDeviceType);
+                                if (updateSuccess)
+                                {
+                                    result.Success = true;
+                                    result.Message = $"Successfully updated existing device: {device.Hostname}";
+                                    result.ActionTaken = DeviceAddAction.Updated;
+                                    result.DeviceId = resolutionOptions.SelectedExistingDevice.device_id;
+                                    
+                                    await _databaseService.LogAuditEntryAsync(resolutionOptions.SelectedExistingDevice.device_id, 
+                                        "UPDATE", "DEVICE_REFRESH", "Manual device update", 
+                                        $"Device updated via duplicate resolution: {resolutionOptions.ResolutionReason}");
+                                }
+                                else
+                                {
+                                    result.Success = false;
+                                    result.Message = "Failed to update existing device.";
+                                    result.ActionTaken = DeviceAddAction.Failed;
+                                }
+                                return result;
+                            }
+                            break;
+
+                        case DuplicateResolutionAction.MergeData:
+                            if (resolutionOptions.SelectedExistingDevice != null)
+                            {
+                                var mergeSuccess = await _databaseService.MergeDeviceDataAsync(
+                                    resolutionOptions.SelectedExistingDevice, device, resolutionOptions);
+                                    
+                                if (mergeSuccess)
+                                {
+                                    result.Success = true;
+                                    result.Message = $"Successfully merged device data for: {device.Hostname}";
+                                    result.ActionTaken = DeviceAddAction.Merged;
+                                    result.DeviceId = resolutionOptions.SelectedExistingDevice.device_id;
+                                }
+                                else
+                                {
+                                    result.Success = false;
+                                    result.Message = "Failed to merge device data.";
+                                    result.ActionTaken = DeviceAddAction.Failed;
+                                }
+                                return result;
+                            }
+                            break;
+                    }
+                }
+            }
+
+            // Add the device normally (either no duplicates found or user chose to create new)
+            var addSuccess = await _databaseService.AddDeviceAsync(device, sanitizedDeviceType);
+            
+            if (addSuccess)
+            {
+                result.Success = true;
+                result.Message = $"Successfully added device: {device.Hostname}";
+                result.ActionTaken = DeviceAddAction.Added;
+                result.DeviceId = device.device_id;
+                
+                _logger.LogInformation("Added new device: {DeviceName} with type {DeviceType} and ID {DeviceId}",
+                    device.Hostname, sanitizedDeviceType, device.device_id);
+            }
+            else
+            {
+                result.Success = false;
+                result.Message = "Failed to add device to database.";
+                result.ActionTaken = DeviceAddAction.Failed;
+                _logger.LogError("Failed to add device: {DeviceName}", device.Hostname);
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            result.Success = false;
+            result.Message = $"Error occurred while adding device: {ex.Message}";
+            result.ActionTaken = DeviceAddAction.Failed;
+            result.ErrorDetails = ex.ToString();
+            _logger.LogError(ex, "Error in AddDeviceWithDuplicateCheckAsync for device: {DeviceName}", device.Hostname);
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// Adds a new device to the database (original method for backwards compatibility)
+    /// </summary>
+    public async Task<bool> AddDeviceAsync(Models.Device device, string deviceType = "Other")
     {
         try
         {
@@ -45,6 +196,9 @@ public class AddDeviceService : IAddDeviceService
 
             var connectionString = BuildConnectionString(credentials.Server, credentials.Database,
                 credentials.UseWindowsAuthentication, credentials.Username, credentials.Password);
+
+            _logger.LogInformation("AddDeviceService: Connecting to Server='{Server}', Database='{Database}'", 
+                credentials.Server, credentials.Database);
 
             using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
@@ -76,11 +230,15 @@ public class AddDeviceService : IAddDeviceService
                 devicesCommand.Parameters.Add(new SqlParameter("@os_architecture", SqlDbType.NVarChar, 200) { Value = device.OsArchitecture ?? (object)DBNull.Value });
                 devicesCommand.Parameters.Add(new SqlParameter("@primary_ip", SqlDbType.NVarChar, 200) { Value = device.PrimaryIp ?? (object)DBNull.Value });
                 devicesCommand.Parameters.Add(new SqlParameter("@primary_mac", SqlDbType.NVarChar, 200) { Value = device.PrimaryMac ?? (object)DBNull.Value });
-                devicesCommand.Parameters.Add(new SqlParameter("@secondary_ips", SqlDbType.NVarChar, -1) { Value = device.SecondaryIps ?? (object)DBNull.Value }); // nvarchar(max)
-                devicesCommand.Parameters.Add(new SqlParameter("@secondary_macs", SqlDbType.NVarChar, -1) { Value = device.SecondaryMacs ?? (object)DBNull.Value });
-                devicesCommand.Parameters.Add(new SqlParameter("@dns_servers", SqlDbType.NVarChar, -1) { Value = device.DnsServers ?? (object)DBNull.Value });
-                devicesCommand.Parameters.Add(new SqlParameter("@default_gateways", SqlDbType.NVarChar, -1) { Value = device.DefaultGateways ?? (object)DBNull.Value });
-                devicesCommand.Parameters.Add(new SqlParameter("@subnet_masks", SqlDbType.NVarChar, -1) { Value = device.SubnetMasks ?? (object)DBNull.Value });
+                devicesCommand.Parameters.Add(new SqlParameter("@nic2_ip", SqlDbType.NVarChar, 200) { Value = device.Nic2Ip ?? (object)DBNull.Value });
+                devicesCommand.Parameters.Add(new SqlParameter("@nic2_mac", SqlDbType.NVarChar, 200) { Value = device.Nic2Mac ?? (object)DBNull.Value });
+                devicesCommand.Parameters.Add(new SqlParameter("@nic3_ip", SqlDbType.NVarChar, 200) { Value = device.Nic3Ip ?? (object)DBNull.Value });
+                devicesCommand.Parameters.Add(new SqlParameter("@nic3_mac", SqlDbType.NVarChar, 200) { Value = device.Nic3Mac ?? (object)DBNull.Value });
+                devicesCommand.Parameters.Add(new SqlParameter("@nic4_ip", SqlDbType.NVarChar, 200) { Value = device.Nic4Ip ?? (object)DBNull.Value });
+                devicesCommand.Parameters.Add(new SqlParameter("@nic4_mac", SqlDbType.NVarChar, 200) { Value = device.Nic4Mac ?? (object)DBNull.Value });
+                devicesCommand.Parameters.Add(new SqlParameter("@primary_dns", SqlDbType.NVarChar, 200) { Value = device.PrimaryDns ?? (object)DBNull.Value });
+                devicesCommand.Parameters.Add(new SqlParameter("@secondary_dns", SqlDbType.NVarChar, 200) { Value = device.SecondaryDns ?? (object)DBNull.Value });
+                devicesCommand.Parameters.Add(new SqlParameter("@primary_subnet", SqlDbType.NVarChar, 200) { Value = device.PrimarySubnet ?? (object)DBNull.Value });
                 devicesCommand.Parameters.Add(new SqlParameter("@area", SqlDbType.NVarChar, 200) { Value = device.Area ?? (object)DBNull.Value });
                 devicesCommand.Parameters.Add(new SqlParameter("@zone", SqlDbType.NVarChar, 200) { Value = device.Zone ?? (object)DBNull.Value });
                 devicesCommand.Parameters.Add(new SqlParameter("@line", SqlDbType.NVarChar, 200) { Value = device.Line ?? (object)DBNull.Value });
@@ -145,5 +303,30 @@ public class AddDeviceService : IAddDeviceService
         }
 
         return builder.ConnectionString;
+    }
+
+    /// <summary>
+    /// Adds a device with audit logging support
+    /// </summary>
+    public async Task<bool> AddDeviceAsync(Models.Device device, string deviceType, string applicationUser, Guid? discoverySessionId, string changeReason)
+    {
+        try
+        {
+            // Use the enhanced DatabaseService method
+            var success = await _databaseService.AddDeviceAsync(device, deviceType, applicationUser, discoverySessionId, changeReason);
+            
+            if (success)
+            {
+                _logger.LogInformation("Successfully added device '{hostname}' (ID: {device_id}) with audit logging. Session: {sessionId}, Reason: {reason}", 
+                    device.Hostname, device.device_id, discoverySessionId, changeReason);
+            }
+            
+            return success;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to add device '{hostname}' with audit logging", device.Hostname);
+            return false;
+        }
     }
 }

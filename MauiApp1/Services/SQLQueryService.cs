@@ -13,15 +13,23 @@ namespace MauiApp1.Services
         // This query is used to add a new device to the database
         public static string AddDeviceQuery => @"
             INSERT INTO dbo.devices (
-                hostname, serial_number, asset_tag, domain_name, workgroup, is_domain_joined, manufacturer, model, cpu_info, total_ram_gb, ram_type, storage_info, bios_version,
-                os_name, os_version, os_architecture, primary_ip, primary_mac, secondary_ips, secondary_macs, 
-                dns_servers, default_gateways, subnet_masks, device_status, area, zone, line, pitch, floor, pillar,
-                additional_notes, created_at, updated_at, last_discovered, discovery_method, device_type, web_interface_url, equipment_group
+                hostname, serial_number, asset_tag, domain_name, is_domain_joined, manufacturer, model, cpu_info, 
+                bios_version, total_ram_gb, ram_type, ram_speed, ram_manufacturer, os_name, os_version, os_architecture, 
+                os_install_date, storage_info, storage_type, storage_model, drive2_name, drive2_capacity, drive2_type, drive2_model,
+                drive3_name, drive3_capacity, drive3_type, drive3_model, drive4_name, drive4_capacity, drive4_type, drive4_model,
+                primary_ip, primary_mac, primary_subnet, primary_dns, secondary_dns, nic2_name, nic2_ip, nic2_mac, nic2_subnet,
+                nic3_name, nic3_ip, nic3_mac, nic3_subnet, nic4_name, nic4_ip, nic4_mac, nic4_subnet, web_interface_url,
+                device_status, area, zone, line, pitch, floor, pillar, additional_notes, created_at, updated_at, 
+                last_discovered, discovery_method, device_type, equipment_group
             ) VALUES (
-                @hostname, @serial_number, @asset_tag, @domain_name, @workgroup, @is_domain_joined, @manufacturer, @model, @cpu_info, @total_ram_gb, @ram_type, @storage_info, @bios_version,
-                @os_name, @os_version, @os_architecture, @primary_ip, @primary_mac, @secondary_ips, @secondary_macs,
-                @dns_servers, @default_gateways, @subnet_masks, @device_status, @area, @zone, @line, @pitch, @floor, @pillar,
-                @additional_notes, @created_at, @updated_at, @last_discovered, @discovery_method, @device_type, @web_interface_url, @equipment_group
+                @hostname, @serial_number, @asset_tag, @domain_name, @is_domain_joined, @manufacturer, @model, @cpu_info,
+                @bios_version, @total_ram_gb, @ram_type, @ram_speed, @ram_manufacturer, @os_name, @os_version, @os_architecture,
+                @os_install_date, @storage_info, @storage_type, @storage_model, @drive2_name, @drive2_capacity, @drive2_type, @drive2_model,
+                @drive3_name, @drive3_capacity, @drive3_type, @drive3_model, @drive4_name, @drive4_capacity, @drive4_type, @drive4_model,
+                @primary_ip, @primary_mac, @primary_subnet, @primary_dns, @secondary_dns, @nic2_name, @nic2_ip, @nic2_mac, @nic2_subnet,
+                @nic3_name, @nic3_ip, @nic3_mac, @nic3_subnet, @nic4_name, @nic4_ip, @nic4_mac, @nic4_subnet, @web_interface_url,
+                @device_status, @area, @zone, @line, @pitch, @floor, @pillar, @additional_notes, @created_at, @updated_at,
+                @last_discovered, @discovery_method, @device_type, @equipment_group
             );
             SELECT CAST(SCOPE_IDENTITY() as int)";
 
@@ -53,31 +61,79 @@ namespace MauiApp1.Services
         WHERE device_type IN ('Router', 'Switch')
         ORDER BY device_id";
 
+        public static string SearchDevicesQuery => @"
+            SELECT * FROM dbo.devices
+            WHERE 
+                hostname LIKE @searchTerm OR
+                primary_ip LIKE @searchTerm OR
+                primary_mac LIKE @searchTerm OR
+                area LIKE @searchTerm OR
+                zone LIKE @searchTerm OR
+                line LIKE @searchTerm OR
+                serial_number LIKE @searchTerm OR
+                asset_tag LIKE @searchTerm OR
+                device_type LIKE @searchTerm OR
+                device_status LIKE @searchTerm OR
+                manufacturer LIKE @searchTerm OR
+                model LIKE @searchTerm OR
+                additional_notes LIKE @searchTerm
+            ORDER BY hostname";
+
+        public static string GetDeviceByHostnameQuery => @"
+            SELECT TOP 1 * FROM devices WHERE hostname = @hostname";
+
         public static string UpdateDeviceQuery => @"
             UPDATE dbo.devices SET
                 hostname = @hostname,
                 serial_number = @serial_number,
                 asset_tag = @asset_tag,
                 domain_name = @domain_name,
-                workgroup = @workgroup,
                 is_domain_joined = @is_domain_joined,
                 manufacturer = @manufacturer,
                 model = @model,
                 cpu_info = @cpu_info,
+                bios_version = @bios_version,
                 total_ram_gb = @total_ram_gb,
                 ram_type = @ram_type,
-                storage_info = @storage_info,
-                bios_version = @bios_version,
+                ram_speed = @ram_speed,
+                ram_manufacturer = @ram_manufacturer,
                 os_name = @os_name,
                 os_version = @os_version,
                 os_architecture = @os_architecture,
+                os_install_date = @os_install_date,
+                storage_info = @storage_info,
+                storage_type = @storage_type,
+                storage_model = @storage_model,
+                drive2_name = @drive2_name,
+                drive2_capacity = @drive2_capacity,
+                drive2_type = @drive2_type,
+                drive2_model = @drive2_model,
+                drive3_name = @drive3_name,
+                drive3_capacity = @drive3_capacity,
+                drive3_type = @drive3_type,
+                drive3_model = @drive3_model,
+                drive4_name = @drive4_name,
+                drive4_capacity = @drive4_capacity,
+                drive4_type = @drive4_type,
+                drive4_model = @drive4_model,
                 primary_ip = @primary_ip,
                 primary_mac = @primary_mac,
-                secondary_ips = @secondary_ips,
-                secondary_macs = @secondary_macs,
-                dns_servers = @dns_servers,
-                default_gateways = @default_gateways,
-                subnet_masks = @subnet_masks,
+                primary_subnet = @primary_subnet,
+                primary_dns = @primary_dns,
+                secondary_dns = @secondary_dns,
+                nic2_name = @nic2_name,
+                nic2_ip = @nic2_ip,
+                nic2_mac = @nic2_mac,
+                nic2_subnet = @nic2_subnet,
+                nic3_name = @nic3_name,
+                nic3_ip = @nic3_ip,
+                nic3_mac = @nic3_mac,
+                nic3_subnet = @nic3_subnet,
+                nic4_name = @nic4_name,
+                nic4_ip = @nic4_ip,
+                nic4_mac = @nic4_mac,
+                nic4_subnet = @nic4_subnet,
+                web_interface_url = @web_interface_url,
                 device_status = @device_status,
                 area = @area,
                 zone = @zone,
@@ -90,7 +146,6 @@ namespace MauiApp1.Services
                 last_discovered = @last_discovered,
                 discovery_method = @discovery_method,
                 device_type = @device_type,
-                web_interface_url = @web_interface_url,
                 equipment_group = @equipment_group
             WHERE device_id = @device_id";
     }

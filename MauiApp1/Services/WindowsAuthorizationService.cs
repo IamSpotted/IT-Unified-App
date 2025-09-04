@@ -27,8 +27,26 @@ public class WindowsAuthorizationService : IAuthorizationService, ISingletonServ
         { "ITSF-App-SystemAdmin", UserRole.SystemAdmin }
     };
 
+    private bool _testingModeEnabled = false; // TODO: Remove before production
+
     public bool IsDeveloperModeEnabled => _developerModeEnabled;
     public UserRole? SimulatedRole => _simulatedRole;
+
+    // TODO: Remove this method before production deployment
+    public void EnableTestingMode(bool enabled = true)
+    {
+        _testingModeEnabled = enabled;
+        if (enabled)
+        {
+            _logger.LogWarning("TESTING MODE ENABLED - All users will have SystemAdmin access!");
+            ClearCache();
+        }
+        else
+        {
+            _logger.LogInformation("Testing mode disabled");
+            ClearCache();
+        }
+    }
 
     public WindowsAuthorizationService(
         ILogger<WindowsAuthorizationService> logger,
@@ -164,6 +182,14 @@ public class WindowsAuthorizationService : IAuthorizationService, ISingletonServ
 
     public async Task<UserRole> GetUserRoleAsync()
     {
+        // Testing mode override - grants SystemAdmin to everyone
+        // TODO: Remove before production deployment
+        if (_testingModeEnabled)
+        {
+            _logger.LogWarning("TESTING MODE: Granting SystemAdmin access to user {User}", Environment.UserName);
+            return UserRole.SystemAdmin;
+        }
+        
         // Developer mode override
         if (_developerModeEnabled && _simulatedRole.HasValue)
         {
@@ -283,7 +309,8 @@ public class WindowsAuthorizationService : IAuthorizationService, ISingletonServ
 
     public void SetDeveloperMode(bool enabled, UserRole? simulatedRole = null)
     {
-#if DEBUG
+        // Allow developer mode in both DEBUG and RELEASE for testing purposes
+        // TODO: Remove this before production deployment
         _developerModeEnabled = enabled;
         _simulatedRole = simulatedRole;
         
@@ -297,9 +324,6 @@ public class WindowsAuthorizationService : IAuthorizationService, ISingletonServ
             _logger.LogInformation("Developer mode disabled");
             ClearCache(); // Clear cache to reload actual permissions
         }
-#else
-        _logger.LogWarning("Developer mode is only available in debug builds");
-#endif
     }
 
     #endregion
@@ -362,7 +386,7 @@ public class WindowsAuthorizationService : IAuthorizationService, ISingletonServ
     {
         if (string.IsNullOrWhiteSpace(serverName))
             return false;
-/*
+
         // Check if we're in a non-domain environment
         bool isNonDomain = await IsNonDomainEnvironmentAsync();
         
@@ -382,15 +406,36 @@ public class WindowsAuthorizationService : IAuthorizationService, ISingletonServ
             
             return isLocalhost;
         }
-*/
+
         // Domain environment: check user permissions normally
         var userRole = await GetUserRoleAsync();
         bool hasDbPermission = await HasPermissionAsync(Permission.DatabaseAdmin);
         
-        _logger.LogDebug("Domain environment: User {User} with role {Role} requesting database connection to {Server}. Permission: {HasPermission}", 
-            Environment.UserName, userRole, serverName, hasDbPermission);
+        if (!hasDbPermission)
+        {
+            _logger.LogWarning("Domain environment: User {User} with role {Role} denied database connection to {Server} - insufficient permissions", 
+                Environment.UserName, userRole, serverName);
+            return false;
+        }
         
-        return hasDbPermission;
+        // Check if server whitelist is enforced
+        var config = await GetConfigurationAsync();
+        if (config.EnforceApprovedServersOnly && config.ApprovedDatabaseServers.Any())
+        {
+            bool isApproved = config.ApprovedDatabaseServers.Any(approvedServer => 
+                string.Equals(approvedServer.Trim(), serverName.Trim(), StringComparison.OrdinalIgnoreCase));
+                
+            if (!isApproved)
+            {
+                _logger.LogWarning("Domain environment: Database connection to {Server} blocked - not in approved servers list", serverName);
+                return false;
+            }
+        }
+        
+        _logger.LogDebug("Domain environment: User {User} with role {Role} granted database connection to {Server}", 
+            Environment.UserName, userRole, serverName);
+        
+        return true;
     }
 
     public async Task<bool> IsNonDomainEnvironmentAsync()

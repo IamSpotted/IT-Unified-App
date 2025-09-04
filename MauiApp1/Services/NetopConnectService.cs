@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using MauiApp1.Interfaces;
 using MauiApp1.Models;
-using DeviceModel = MauiApp1.Models.Device;
+
 
 namespace MauiApp1.Services;
 
@@ -12,13 +12,13 @@ public class NetopConnectService : INetopConnectService
 {
     private readonly ILogger<NetopConnectService> _logger;
     private readonly ISettingsService _settingsService;
-    private List<DeviceModel> _devices = new();
+    private List<Models.Device> _devices = new();
 
     public NetopConnectService(ILogger<NetopConnectService> logger, ISettingsService settingsService)
     {
         _logger = logger;
         _settingsService = settingsService;
-        _devices = new List<DeviceModel>(); // Start with empty list - no mock data
+        _devices = new List<Models.Device>(); // Start with empty list - no mock data
         _logger.LogInformation("NetopConnectService initialized with empty device list");
     }
 
@@ -135,7 +135,7 @@ public class NetopConnectService : INetopConnectService
         }
     }
 
-    public Task<List<DeviceModel>> GetDevicesAsync()
+    public Task<List<Models.Device>> GetDevicesAsync()
     {
         return Task.FromResult(_devices);
     }

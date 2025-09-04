@@ -1,4 +1,5 @@
 using MauiApp1.Models;
+using MauiApp1.Scripts;
 
 namespace MauiApp1.Models
 {
@@ -7,16 +8,16 @@ namespace MauiApp1.Models
     /// </summary>
     public class ComputerInfoComparisonResult
     {
-
-        public ComputerInfo ScriptInfo { get; set; }
-        public Device ScriptedDevice => ToDevice(ScriptInfo)!;
+        public EnhancedComputerInfo ScriptInfo { get; set; }
         public Device? DatabaseInfo { get; set; }
+        public string ScanTarget { get; set; } = string.Empty; // Store the original scan input
 
         // Constructor
-        public ComputerInfoComparisonResult(ComputerInfo scriptInfo, Device? databaseInfo)
+        public ComputerInfoComparisonResult(EnhancedComputerInfo scriptInfo, Device? databaseInfo, string scanTarget = "")
         {
             ScriptInfo = scriptInfo;
             DatabaseInfo = databaseInfo;
+            ScanTarget = scanTarget;
         }
 
         // Booleans for selective updating of each field
@@ -40,27 +41,6 @@ namespace MauiApp1.Models
         public bool UpdateSecondaryIps { get; set; }
         public bool UpdateSecondaryMacs { get; set; }
         public bool UpdateDnsServers { get; set; }
-        public bool UpdateDefaultGateways { get; set; }
         public bool UpdateSubnetMasks { get; set; }
-
-        // Optionally, convert ComputerInfo to Device for easier comparison
-        private Device ToDevice(ComputerInfo info)
-        {
-            // Get primary IP and MAC from first adapter with data
-            var primaryAdapter = info.NetworkAdapters?.FirstOrDefault(a => !string.IsNullOrWhiteSpace(a.IPAddress) || !string.IsNullOrWhiteSpace(a.MACAddress));
-            string? primaryIp = primaryAdapter?.IPAddress;
-            string? primaryMac = primaryAdapter?.MACAddress;
-            return new Device
-            {
-                Hostname = info.ComputerName,
-                Manufacturer = info.Manufacturer,
-                Model = info.Model,
-                SerialNumber = info.SerialNumber,
-                AssetTag = info.AssetTag,
-                IpAddress = primaryIp,
-                MacAddress = primaryMac,
-                // Add more mappings as needed
-            };
-        }
     }
 }

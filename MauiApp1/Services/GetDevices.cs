@@ -5,7 +5,7 @@ using System.Diagnostics;
 using MauiApp1.Models;
 using MauiApp1.Services;
 using MauiApp1.Interfaces;
-using DeviceModel = MauiApp1.Models.Device;
+
 
 namespace MauiApp1.Services
 {
@@ -20,9 +20,9 @@ namespace MauiApp1.Services
             _logger = logger;
         }
 
-        public async Task<List<DeviceModel>> GetAllDevicesAsync()
+        public async Task<List<Models.Device>> GetAllDevicesAsync()
         {
-            var devices = new List<DeviceModel>();
+            var devices = new List<Models.Device>();
 
             var credentials = await _credentialsService.GetDatabaseCredentialsAsync();
            
@@ -55,7 +55,7 @@ namespace MauiApp1.Services
 
             while (await reader.ReadAsync())
             {
-                var device = new DeviceModel
+                var device = new Models.Device
                 {
                     Hostname = reader.GetString(reader.GetOrdinal("hostname")),
                     SerialNumber = reader.IsDBNull(reader.GetOrdinal("serial_number")) ? null : reader.GetString(reader.GetOrdinal("serial_number")),
@@ -75,11 +75,21 @@ namespace MauiApp1.Services
                     OsArchitecture = reader.IsDBNull(reader.GetOrdinal("os_architecture")) ? null : reader.GetString(reader.GetOrdinal("os_architecture")),
                     PrimaryIp = reader.IsDBNull(reader.GetOrdinal("primary_ip")) ? null : reader.GetString(reader.GetOrdinal("primary_ip")),
                     PrimaryMac = reader.IsDBNull(reader.GetOrdinal("primary_mac")) ? null : reader.GetString(reader.GetOrdinal("primary_mac")),
-                    SecondaryIps = reader.IsDBNull(reader.GetOrdinal("secondary_ips")) ? null : reader.GetString(reader.GetOrdinal("secondary_ips")),
-                    SecondaryMacs = reader.IsDBNull(reader.GetOrdinal("secondary_macs")) ? null : reader.GetString(reader.GetOrdinal("secondary_macs")),
-                    DnsServers = reader.IsDBNull(reader.GetOrdinal("dns_servers")) ? null : reader.GetString(reader.GetOrdinal("dns_servers")),
-                    DefaultGateways = reader.IsDBNull(reader.GetOrdinal("default_gateways")) ? null : reader.GetString(reader.GetOrdinal("default_gateways")),
-                    SubnetMasks = reader.IsDBNull(reader.GetOrdinal("subnet_masks")) ? null : reader.GetString(reader.GetOrdinal("subnet_masks")),
+                    PrimarySubnet = reader.IsDBNull(reader.GetOrdinal("primary_subnet")) ? null : reader.GetString(reader.GetOrdinal("primary_subnet")),
+                    PrimaryDns = reader.IsDBNull(reader.GetOrdinal("primary_dns")) ? null : reader.GetString(reader.GetOrdinal("primary_dns")),
+                    SecondaryDns = reader.IsDBNull(reader.GetOrdinal("secondary_dns")) ? null : reader.GetString(reader.GetOrdinal("secondary_dns")),
+                    Nic2Name = reader.IsDBNull(reader.GetOrdinal("nic2_name")) ? null : reader.GetString(reader.GetOrdinal("nic2_name")),
+                    Nic2Mac = reader.IsDBNull(reader.GetOrdinal("nic2_mac")) ? null : reader.GetString(reader.GetOrdinal("nic2_mac")),
+                    Nic2Ip = reader.IsDBNull(reader.GetOrdinal("nic2_ip")) ? null : reader.GetString(reader.GetOrdinal("nic2_ip")),
+                    Nic2Subnet = reader.IsDBNull(reader.GetOrdinal("nic2_subnet")) ? null : reader.GetString(reader.GetOrdinal("nic2_subnet")),
+                    Nic3Name = reader.IsDBNull(reader.GetOrdinal("nic3_name")) ? null : reader.GetString(reader.GetOrdinal("nic3_name")),
+                    Nic3Mac = reader.IsDBNull(reader.GetOrdinal("nic3_mac")) ? null : reader.GetString(reader.GetOrdinal("nic3_mac")),
+                    Nic3Ip = reader.IsDBNull(reader.GetOrdinal("nic3_ip")) ? null : reader.GetString(reader.GetOrdinal("nic3_ip")),
+                    Nic3Subnet = reader.IsDBNull(reader.GetOrdinal("nic3_subnet")) ? null : reader.GetString(reader.GetOrdinal("nic3_subnet")),
+                    Nic4Name = reader.IsDBNull(reader.GetOrdinal("nic4_name")) ? null : reader.GetString(reader.GetOrdinal("nic4_name")),
+                    Nic4Mac = reader.IsDBNull(reader.GetOrdinal("nic4_mac")) ? null : reader.GetString(reader.GetOrdinal("nic4_mac")),
+                    Nic4Ip = reader.IsDBNull(reader.GetOrdinal("nic4_ip")) ? null : reader.GetString(reader.GetOrdinal("nic4_ip")),
+                    Nic4Subnet = reader.IsDBNull(reader.GetOrdinal("nic4_subnet")) ? null : reader.GetString(reader.GetOrdinal("nic4_subnet")),
                     Area = reader.IsDBNull(reader.GetOrdinal("area")) ? string.Empty : reader.GetString(reader.GetOrdinal("area")),
                     Zone = reader.IsDBNull(reader.GetOrdinal("zone")) ? string.Empty : reader.GetString(reader.GetOrdinal("zone")),
                     Line = reader.IsDBNull(reader.GetOrdinal("line")) ? string.Empty : reader.GetString(reader.GetOrdinal("line")),
